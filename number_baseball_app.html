@@ -83,14 +83,14 @@
         }
 
         #guessInput {
-            width: 150px;
+            width: 200px;
             padding: 15px;
             font-size: 24px;
             border: 2px solid #ddd;
             border-radius: 10px;
             text-align: center;
             font-weight: bold;
-            letter-spacing: 10px;
+            letter-spacing: 8px;
         }
 
         #guessInput:focus {
@@ -219,6 +219,43 @@
             margin-bottom: 30px;
         }
 
+        .difficulty-selector {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .difficulty-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .difficulty-btn:hover {
+            border-color: #667eea;
+            background: #f8f9fa;
+        }
+
+        .difficulty-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .difficulty-info {
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
         .rules {
             background: #fff3cd;
             border-left: 4px solid #ffc107;
@@ -258,8 +295,18 @@
             }
 
             #guessInput {
+                width: 150px;
                 font-size: 20px;
-                letter-spacing: 8px;
+                letter-spacing: 6px;
+            }
+
+            .difficulty-btn {
+                font-size: 12px;
+                padding: 10px 5px;
+            }
+
+            .difficulty-info {
+                font-size: 10px;
             }
         }
     </style>
@@ -267,11 +314,26 @@
 <body>
     <div class="container">
         <h1>🎮 숫자야구</h1>
-        <p class="subtitle">3자리 숫자를 맞춰보세요!</p>
+        <p class="subtitle">숫자를 맞춰보세요!</p>
+
+        <div class="difficulty-selector">
+            <button class="difficulty-btn active" onclick="setDifficulty(3)" id="diff-3">
+                3자리<br>
+                <span class="difficulty-info">쉬움</span>
+            </button>
+            <button class="difficulty-btn" onclick="setDifficulty(4)" id="diff-4">
+                4자리<br>
+                <span class="difficulty-info">보통</span>
+            </button>
+            <button class="difficulty-btn" onclick="setDifficulty(5)" id="diff-5">
+                5자리<br>
+                <span class="difficulty-info">어려움</span>
+            </button>
+        </div>
 
         <div class="rules">
             <div class="rules-title">📌 게임 규칙</div>
-            • 중복되지 않는 3자리 숫자를 맞추세요<br>
+            <span id="rulesText">중복되지 않는 3자리 숫자를 맞추세요</span><br>
             • <strong>S (Strike)</strong>: 숫자와 위치가 모두 맞음<br>
             • <strong>B (Ball)</strong>: 숫자만 맞고 위치가 다름<br>
             • <strong>0</strong>: 맞는 숫자가 없음
@@ -321,24 +383,25 @@
         let answer = '';
         let attempts = 0;
         let history = [];
+        let digits = 3; // 현재 게임 자릿수
         const MAX_ATTEMPTS = 30;
 
         function generateNumber() {
-            const digits = [];
-            while (digits.length < 3) {
+            const digitsList = [];
+            while (digitsList.length < digits) {
                 const digit = Math.floor(Math.random() * 10);
-                if (!digits.includes(digit)) {
-                    digits.push(digit);
+                if (!digitsList.includes(digit)) {
+                    digitsList.push(digit);
                 }
             }
-            return digits.join('');
+            return digitsList.join('');
         }
 
         function calculateResult(answer, guess) {
             let strike = 0;
             let ball = 0;
 
-            for (let i = 0; i < 3; i++) {
+            for (let i = 0; i < digits; i++) {
                 if (guess[i] === answer[i]) {
                     strike++;
                 } else if (answer.includes(guess[i])) {
@@ -381,12 +444,13 @@
             }
 
             // 입력 검증
-            if (guess.length !== 3 || !/^\d{3}$/.test(guess)) {
-                showError('⚠️ 3자리 숫자를 입력해주세요');
+            const digitPattern = new RegExp(`^\\d{${digits}}$`);
+            if (guess.length !== digits || !digitPattern.test(guess)) {
+                showError(`⚠️ ${digits}자리 숫자를 입력해주세요`);
                 return;
             }
 
-            if (new Set(guess).size !== 3) {
+            if (new Set(guess).size !== digits) {
                 showError('⚠️ 중복되지 않는 숫자를 입력해주세요');
                 return;
             }
@@ -398,10 +462,10 @@
             const resultStr = formatResult(result.strike, result.ball);
 
             // 히스토리 추가
-            addHistory(guess, resultStr, result.strike === 3);
+            addHistory(guess, resultStr, result.strike === digits);
 
             // 정답 체크
-            if (result.strike === 3) {
+            if (result.strike === digits) {
                 setTimeout(() => {
                     showWinModal();
                 }, 500);
@@ -445,6 +509,35 @@
         function showLoseModal() {
             document.getElementById('loseAnswer').textContent = answer;
             document.getElementById('loseModal').classList.add('show');
+        }
+
+        function setDifficulty(newDigits) {
+            // 게임 진행 중이면 확인
+            if (attempts > 0) {
+                if (!confirm('게임을 다시 시작하시겠습니까?')) {
+                    return;
+                }
+            }
+
+            digits = newDigits;
+
+            // 난이도 버튼 활성화 표시
+            document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(`diff-${newDigits}`).classList.add('active');
+
+            // 규칙 텍스트 업데이트
+            document.getElementById('rulesText').textContent = 
+                `중복되지 않는 ${digits}자리 숫자를 맞추세요`;
+
+            // 입력 필드 업데이트
+            const input = document.getElementById('guessInput');
+            input.maxLength = digits;
+            input.placeholder = '0'.repeat(digits);
+
+            // 새 게임 시작
+            newGame();
         }
 
         function newGame() {

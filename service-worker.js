@@ -1,4 +1,4 @@
-const CACHE_NAME = 'number-baseball-v1';
+const CACHE_NAME = 'number-baseball-v2';
 const urlsToCache = [
   './number_baseball_app.html',
   './manifest.json',
