@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Number Baseball">
+    <meta name="theme-color" content="#667eea">
+    <meta name="description" content="Guess the number! 3, 4, or 5 digits difficulty. Play with friends!">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest_en.json">
+    
+    <!-- iOS Icons -->
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="icon-192.png">
+    
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4YCRZYFNX4"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-4YCRZYFNX4');
+    </script>
+    
+    <title>🎮 Number Baseball Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            padding: 30px;
+            position: relative;
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .game-info {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .attempts {
+            font-size: 18px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #guessInput {
+            width: 200px;
+            padding: 15px;
+            font-size: 24px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            letter-spacing: 8px;
+        }
+
+        #guessInput:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .history {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .history-item {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .guess-number {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            letter-spacing: 5px;
+        }
+
+        .result {
+            font-size: 18px;
+            font-weight: bold;
+            padding: 5px 15px;
+            border-radius: 20px;
+            background: #667eea;
+            color: white;
+        }
+
+        .result.no-match {
+            background: #95a5a6;
+        }
+
+        .result.success {
+            background: #27ae60;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 350px;
+            width: 90%;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-title {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .modal-text {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .modal-detail {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .difficulty-selector {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .difficulty-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .difficulty-btn:hover {
+            border-color: #667eea;
+            background: #f8f9fa;
+        }
+
+        .difficulty-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .difficulty-info {
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .version {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 11px;
+            color: rgba(102, 126, 234, 0.6);
+            font-weight: normal;
+        }
+
+        @media (max-width: 480px) {
+            .version {
+                top: 8px;
+                right: 10px;
+                font-size: 10px;
+            }
+        }
+
+        .rules {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .rules-title {
+            font-weight: bold;
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            #guessInput {
+                width: 150px;
+                font-size: 20px;
+                letter-spacing: 6px;
+            }
+
+            .difficulty-btn {
+                font-size: 12px;
+                padding: 10px 5px;
+            }
+
+            .difficulty-info {
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="version">v2.1 (Analytics)</div>
+        <h1>🎮 Number Baseball</h1>
+        <p class="subtitle">Guess the number!</p>
+
+        <div class="difficulty-selector">
+            <button class="difficulty-btn active" onclick="setDifficulty(3)" id="diff-3">
+                3 Digits<br>
+                <span class="difficulty-info">Easy</span>
+            </button>
+            <button class="difficulty-btn" onclick="setDifficulty(4)" id="diff-4">
+                4 Digits<br>
+                <span class="difficulty-info">Normal</span>
+            </button>
+            <button class="difficulty-btn" onclick="setDifficulty(5)" id="diff-5">
+                5 Digits<br>
+                <span class="difficulty-info">Hard</span>
+            </button>
+        </div>
+
+        <div class="rules">
+            <div class="rules-title">📌 Game Rules</div>
+            <span id="rulesText">Guess a 3-digit number with no repeating digits</span><br>
+            • <strong>S (Strike)</strong>: Correct digit in correct position<br>
+            • <strong>B (Ball)</strong>: Correct digit in wrong position<br>
+            • <strong>0</strong>: No correct digits
+        </div>
+
+        <div class="game-info">
+            <div class="attempts">Attempts: <span id="attemptCount">0</span> / 30</div>
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+
+        <div class="input-group">
+            <input type="tel" id="guessInput" maxlength="3" placeholder="000" autocomplete="off">
+            <button class="btn btn-primary" onclick="makeGuess()">Submit</button>
+        </div>
+
+        <div class="history" id="history"></div>
+
+        <button class="btn btn-secondary" onclick="newGame()" style="width: 100%;">New Game</button>
+    </div>
+
+    <div class="modal" id="winModal">
+        <div class="modal-content">
+            <div class="modal-title">🎉</div>
+            <div class="modal-text">Congratulations!</div>
+            <div class="modal-detail">
+                You got it in <span id="finalAttempts"></span> attempts!<br>
+                Answer: <strong id="finalAnswer"></strong>
+            </div>
+            <button class="btn btn-primary" onclick="newGame()" style="width: 100%;">New Game</button>
+        </div>
+    </div>
+
+    <div class="modal" id="loseModal">
+        <div class="modal-content">
+            <div class="modal-title">😢</div>
+            <div class="modal-text">Game Over!</div>
+            <div class="modal-detail">
+                You've used all 30 attempts.<br>
+                The answer was: <strong id="loseAnswer"></strong>
+            </div>
+            <button class="btn btn-primary" onclick="newGame()" style="width: 100%;">Try Again!</button>
+        </div>
+    </div>
+
+    <script>
+        let answer = '';
+        let attempts = 0;
+        let history = [];
+        let digits = 3; // 현재 게임 자릿수
+        const MAX_ATTEMPTS = 30;
+
+        function generateNumber() {
+            const digitsList = [];
+            while (digitsList.length < digits) {
+                const digit = Math.floor(Math.random() * 10);
+                if (!digitsList.includes(digit)) {
+                    digitsList.push(digit);
+                }
+            }
+            return digitsList.join('');
+        }
+
+        function calculateResult(answer, guess) {
+            let strike = 0;
+            let ball = 0;
+
+            for (let i = 0; i < digits; i++) {
+                if (guess[i] === answer[i]) {
+                    strike++;
+                } else if (answer.includes(guess[i])) {
+                    ball++;
+                }
+            }
+
+            return { strike, ball };
+        }
+
+        function formatResult(strike, ball) {
+            if (strike === 0 && ball === 0) {
+                return '0';
+            }
+
+            const parts = [];
+            if (strike > 0) parts.push(`${strike}S`);
+            if (ball > 0) parts.push(`${ball}B`);
+
+            return parts.join(' ');
+        }
+
+        function showError(message) {
+            const errorEl = document.getElementById('errorMessage');
+            errorEl.textContent = message;
+            errorEl.classList.add('show');
+
+            setTimeout(() => {
+                errorEl.classList.remove('show');
+            }, 3000);
+        }
+
+        function makeGuess() {
+            const input = document.getElementById('guessInput');
+            const guess = input.value.trim();
+
+            // 30번 시도 완료 체크
+            if (attempts >= MAX_ATTEMPTS) {
+                return;
+            }
+
+            // Input validation
+            const digitPattern = new RegExp(`^\\d{${digits}}$`);
+            if (guess.length !== digits || !digitPattern.test(guess)) {
+                showError(`⚠️ Please enter a ${digits}-digit number`);
+                return;
+            }
+
+            if (new Set(guess).size !== digits) {
+                showError('⚠️ Please enter non-repeating digits');
+                return;
+            }
+
+            attempts++;
+            document.getElementById('attemptCount').textContent = attempts;
+
+            const result = calculateResult(answer, guess);
+            const resultStr = formatResult(result.strike, result.ball);
+
+            // 히스토리 추가
+            addHistory(guess, resultStr, result.strike === digits);
+
+            // 정답 체크
+            if (result.strike === digits) {
+                setTimeout(() => {
+                    showWinModal();
+                }, 500);
+            } else if (attempts >= MAX_ATTEMPTS) {
+                // 30번 시도 실패
+                setTimeout(() => {
+                    showLoseModal();
+                }, 500);
+            }
+
+            // 입력 필드 초기화
+            input.value = '';
+            input.focus();
+        }
+
+        function addHistory(guess, result, isWin) {
+            const historyEl = document.getElementById('history');
+            const item = document.createElement('div');
+            item.className = 'history-item';
+
+            const guessSpan = document.createElement('span');
+            guessSpan.className = 'guess-number';
+            guessSpan.textContent = guess;
+
+            const resultSpan = document.createElement('span');
+            resultSpan.className = 'result' + (result === '0' ? ' no-match' : '') + (isWin ? ' success' : '');
+            resultSpan.textContent = result;
+
+            item.appendChild(guessSpan);
+            item.appendChild(resultSpan);
+
+            historyEl.insertBefore(item, historyEl.firstChild);
+        }
+
+        function showWinModal() {
+            document.getElementById('finalAttempts').textContent = attempts;
+            document.getElementById('finalAnswer').textContent = answer;
+            document.getElementById('winModal').classList.add('show');
+        }
+
+        function showLoseModal() {
+            document.getElementById('loseAnswer').textContent = answer;
+            document.getElementById('loseModal').classList.add('show');
+        }
+
+        function setDifficulty(newDigits) {
+            // 게임 진행 중이면 확인
+            if (attempts > 0) {
+                if (!confirm('Start a new game?')) {
+                    return;
+                }
+            }
+
+            digits = newDigits;
+
+            // 난이도 버튼 활성화 표시
+            document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(`diff-${newDigits}`).classList.add('active');
+
+            // 규칙 텍스트 업데이트
+            document.getElementById('rulesText').textContent = 
+                `Guess a ${digits}-digit number with no repeating digits`;
+
+            // 입력 필드 업데이트
+            const input = document.getElementById('guessInput');
+            input.maxLength = digits;
+            input.placeholder = '0'.repeat(digits);
+
+            // 새 게임 시작
+            newGame();
+        }
+
+        function newGame() {
+            answer = generateNumber();
+            attempts = 0;
+            history = [];
+
+            document.getElementById('attemptCount').textContent = '0';
+            document.getElementById('history').innerHTML = '';
+            document.getElementById('guessInput').value = '';
+            document.getElementById('winModal').classList.remove('show');
+            document.getElementById('loseModal').classList.remove('show');
+            document.getElementById('guessInput').focus();
+
+            // Google Analytics 이벤트 추적
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'new_game', {
+                    'event_category': 'game',
+                    'event_label': `${digits}자리`,
+                    'value': digits
+                });
+            }
+
+            // GitHub 방문자 통계용 - 투명 이미지 로드
+            trackGameStart();
+        }
+
+        function trackGameStart() {
+            // GitHub repository의 작은 파일을 요청하여 트래픽 통계에 반영
+            // tracking.gif 파일을 repository에 추가해야 합니다
+            const img = new Image();
+            img.src = 'tracking.gif?t=' + new Date().getTime();
+        }
+
+        // Enter 키 지원
+        document.getElementById('guessInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                makeGuess();
+            }
+        });
+
+        // 숫자만 입력 가능하도록
+        document.getElementById('guessInput').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^\d]/g, '');
+        });
+
+        // 게임 시작
+        newGame();
+
+        // Service Worker 등록 (PWA)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(reg => console.log('Service Worker registered'))
+                    .catch(err => console.log('Service Worker registration failed'));
+            });
+        }
+    </script>
+</body>
+</html>
