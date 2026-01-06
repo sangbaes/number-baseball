@@ -19,6 +19,16 @@
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="icon-192.png">
     
+    <!-- Google Analytics (방문자 추적) -->
+    <!-- 아래 G-XXXXXXXXXX를 본인의 Google Analytics ID로 교체하세요 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-XXXXXXXXXX');
+    </script>
+    
     <title>🎮 숫자야구 게임</title>
     <style>
         * {
@@ -551,6 +561,25 @@
             document.getElementById('winModal').classList.remove('show');
             document.getElementById('loseModal').classList.remove('show');
             document.getElementById('guessInput').focus();
+
+            // Google Analytics 이벤트 추적
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'new_game', {
+                    'event_category': 'game',
+                    'event_label': `${digits}자리`,
+                    'value': digits
+                });
+            }
+
+            // GitHub 방문자 통계용 - 투명 이미지 로드
+            trackGameStart();
+        }
+
+        function trackGameStart() {
+            // GitHub repository의 작은 파일을 요청하여 트래픽 통계에 반영
+            // tracking.gif 파일을 repository에 추가해야 합니다
+            const img = new Image();
+            img.src = 'tracking.gif?t=' + new Date().getTime();
         }
 
         // Enter 키 지원
