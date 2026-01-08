@@ -419,7 +419,7 @@
         <!-- 모드 선택 -->
         <div id="modeSelector" class="mode-selector">
             <div class="mode-grid">
-                <div class="mode-btn" onclick="createRoom()">
+                <div class="mode-btn" onclick="showGameModeSelection('create')">
                     <div class="icon">🏠</div>
                     <div class="title" id="createRoomTitle">방 만들기</div>
                     <div class="desc" id="createRoomDesc">친구를 초대하세요</div>
@@ -435,6 +435,24 @@
                 <div class="title" id="soloModeTitle">혼자하기</div>
                 <div class="desc" id="soloModeDesc">혼자서 연습하기</div>
             </div>
+        </div>
+
+        <!-- 게임 방식 선택 -->
+        <div id="gameModeSelection" class="room-section">
+            <h3 style="text-align: center; margin-bottom: 20px;" id="gameModeTitle">게임 방식 선택</h3>
+            <div class="mode-grid">
+                <div class="mode-btn" onclick="createRoom('simultaneous')">
+                    <div class="icon">⚡</div>
+                    <div class="title" id="simultaneousTitle">동시 대결</div>
+                    <div class="desc" id="simultaneousDesc">누가 먼저 맞추나!</div>
+                </div>
+                <div class="mode-btn" onclick="createRoom('turn-based')">
+                    <div class="icon">🔄</div>
+                    <div class="title" id="turnBasedTitle">턴제 대결</div>
+                    <div class="desc" id="turnBasedDesc">번갈아가며 추측</div>
+                </div>
+            </div>
+            <button class="btn btn-secondary" onclick="backToMode()" id="backBtn3">돌아가기</button>
         </div>
 
         <!-- 방 입장 -->
@@ -467,6 +485,10 @@
 
         <!-- 멀티플레이어 게임 화면 -->
         <div id="multiplayerGame" class="game-area">
+            <div id="turnInfo" style="text-align: center; padding: 10px; margin-bottom: 15px; background: #f8f9fa; border-radius: 10px; font-weight: bold; color: #667eea; display: none;">
+                <span id="turnText">당신 차례입니다!</span>
+            </div>
+
             <div class="players-status">
                 <div class="player-card me">
                     <div class="player-name" id="meLabel">🔵 나</div>
@@ -514,7 +536,13 @@
             <div class="modal-title" id="resultEmoji">🎉</div>
             <div class="modal-text" id="resultText">승리!</div>
             <div class="modal-detail" id="resultDetail"></div>
-            <button class="btn btn-primary" onclick="closeModal()" id="closeModalBtn">확인</button>
+            <div id="multiplayerButtons" style="display: none;">
+                <button class="btn btn-primary" onclick="playAgain()" id="playAgainBtn" style="margin-bottom: 10px;">새 게임</button>
+                <button class="btn btn-secondary" onclick="closeModal()" id="closeModalBtn2">나가기</button>
+            </div>
+            <div id="soloButton">
+                <button class="btn btn-primary" onclick="closeModal()" id="closeModalBtn">확인</button>
+            </div>
         </div>
     </div>
 
@@ -530,6 +558,11 @@
                 joinRoomDesc: "코드로 입장하기",
                 soloModeTitle: "혼자하기",
                 soloModeDesc: "혼자서 연습하기",
+                gameModeTitle: "게임 방식 선택",
+                simultaneousTitle: "동시 대결",
+                simultaneousDesc: "누가 먼저 맞추나!",
+                turnBasedTitle: "턴제 대결",
+                turnBasedDesc: "번갈아가며 추측",
                 joinTitle: "방 코드 입력",
                 joinBtn: "입장하기",
                 backBtn: "돌아가기",
@@ -549,6 +582,10 @@
                 guessBtn: "추측하기",
                 soloAttemptsLabel: "시도: ",
                 newGameBtn: "새 게임",
+                playAgainBtn: "새 게임",
+                yourTurn: "당신 차례입니다!",
+                opponentTurn: "상대방 차례입니다...",
+                waitingForOpponent: "상대방을 기다리는 중...",
                 winTitle: "승리!",
                 winDetail: "{attempts}번 만에 맞추셨습니다!",
                 loseTitle: "패배...",
@@ -558,8 +595,10 @@
                 soloLoseTitle: "아쉽네요!",
                 soloLoseDetail: "30번 시도했지만 맞추지 못했습니다.\n정답: {answer}",
                 closeModalBtn: "확인",
+                closeModalBtn2: "나가기",
                 errorDigits: "⚠️ 3자리 숫자를 입력하세요",
                 errorRepeating: "⚠️ 중복되지 않는 숫자를 입력하세요",
+                errorNotYourTurn: "⚠️ 상대방 차례입니다!",
                 errorRoomCode: "6자리 방 코드를 입력하세요",
                 errorNoRoom: "존재하지 않는 방입니다",
                 errorStarted: "이미 시작된 게임입니다",
@@ -575,6 +614,11 @@
                 joinRoomDesc: "Enter room code",
                 soloModeTitle: "Solo Play",
                 soloModeDesc: "Practice alone",
+                gameModeTitle: "Choose Game Mode",
+                simultaneousTitle: "Simultaneous",
+                simultaneousDesc: "Race to finish!",
+                turnBasedTitle: "Turn-based",
+                turnBasedDesc: "Take turns guessing",
                 joinTitle: "Enter Room Code",
                 joinBtn: "Join",
                 backBtn: "Back",
@@ -594,6 +638,10 @@
                 guessBtn: "Submit",
                 soloAttemptsLabel: "Attempts: ",
                 newGameBtn: "New Game",
+                playAgainBtn: "Play Again",
+                yourTurn: "Your turn!",
+                opponentTurn: "Opponent's turn...",
+                waitingForOpponent: "Waiting for opponent...",
                 winTitle: "Victory!",
                 winDetail: "You got it in {attempts} attempts!",
                 loseTitle: "Defeat...",
@@ -603,8 +651,10 @@
                 soloLoseTitle: "Game Over!",
                 soloLoseDetail: "You've used all 30 attempts.\nAnswer: {answer}",
                 closeModalBtn: "OK",
+                closeModalBtn2: "Leave",
                 errorDigits: "⚠️ Please enter a 3-digit number",
                 errorRepeating: "⚠️ Please enter non-repeating digits",
+                errorNotYourTurn: "⚠️ Wait for your turn!",
                 errorRoomCode: "Please enter a 6-digit room code",
                 errorNoRoom: "Room does not exist",
                 errorStarted: "Game already started",
@@ -632,10 +682,16 @@
             document.getElementById('joinRoomDesc').textContent = t.joinRoomDesc;
             document.getElementById('soloModeTitle').textContent = t.soloModeTitle;
             document.getElementById('soloModeDesc').textContent = t.soloModeDesc;
+            document.getElementById('gameModeTitle').textContent = t.gameModeTitle;
+            document.getElementById('simultaneousTitle').textContent = t.simultaneousTitle;
+            document.getElementById('simultaneousDesc').textContent = t.simultaneousDesc;
+            document.getElementById('turnBasedTitle').textContent = t.turnBasedTitle;
+            document.getElementById('turnBasedDesc').textContent = t.turnBasedDesc;
             document.getElementById('joinTitle').textContent = t.joinTitle;
             document.getElementById('joinBtn').textContent = t.joinBtn;
             document.getElementById('backBtn1').textContent = t.backBtn;
             document.getElementById('backBtn2').textContent = t.backBtn;
+            document.getElementById('backBtn3').textContent = t.backBtn;
             document.getElementById('roomCodeLabel').textContent = t.roomCodeLabel;
             document.getElementById('shareText').textContent = t.shareText;
             document.getElementById('copyBtn').textContent = t.copyBtn;
@@ -653,7 +709,9 @@
             document.getElementById('guessBtn2').textContent = t.guessBtn;
             document.getElementById('soloAttemptsLabel').textContent = t.soloAttemptsLabel;
             document.getElementById('newGameBtn').textContent = t.newGameBtn;
+            document.getElementById('playAgainBtn').textContent = t.playAgainBtn;
             document.getElementById('closeModalBtn').textContent = t.closeModalBtn;
+            document.getElementById('closeModalBtn2').textContent = t.closeModalBtn2;
         }
 
         function getText(key, replacements = {}) {
@@ -693,6 +751,9 @@
         let attempts = 0;
         let gameEnded = false;
         let gameMode = ''; // 'multiplayer' or 'solo'
+        let multiplayerMode = ''; // 'simultaneous' or 'turn-based'
+        let currentTurn = '';
+        let opponentId = '';
 
         function generateNumber() {
             const digits = [];
@@ -803,9 +864,16 @@
             startSoloMode();
         }
 
+        // ===== 게임 모드 선택 =====
+        function showGameModeSelection(action) {
+            hideAllSections();
+            document.getElementById('gameModeSelection').style.display = 'block';
+        }
+
         // ===== 멀티플레이어 모드 =====
-        function createRoom() {
+        function createRoom(mode) {
             gameMode = 'multiplayer';
+            multiplayerMode = mode;
             roomCode = generateRoomCode();
             isHost = true;
             answer = generateNumber();
@@ -813,10 +881,11 @@
             attempts = 0;
 
             const roomRef = database.ref('rooms/' + roomCode);
-            roomRef.set({
+            const roomData = {
                 answer: answer,
                 host: playerId,
                 status: 'waiting',
+                gameMode: mode,
                 players: {
                     [playerId]: {
                         attempts: 0,
@@ -825,7 +894,14 @@
                     }
                 },
                 createdAt: Date.now()
-            });
+            };
+
+            if (mode === 'turn-based') {
+                roomData.currentTurn = playerId;
+                roomData.turnOrder = [playerId];
+            }
+
+            roomRef.set(roomData);
 
             showWaitingRoom();
             listenToRoom();
@@ -862,11 +938,22 @@
                 }
 
                 answer = roomData.answer;
+                multiplayerMode = roomData.gameMode || 'simultaneous';
+                
                 roomRef.child('players/' + playerId).set({
                     attempts: 0,
                     status: 'ready',
                     isWinner: false
                 });
+
+                // 턴제 모드일 경우 turnOrder에 추가
+                if (multiplayerMode === 'turn-based') {
+                    roomRef.child('turnOrder').once('value').then(orderSnapshot => {
+                        const turnOrder = orderSnapshot.val() || [];
+                        turnOrder.push(playerId);
+                        roomRef.update({ turnOrder: turnOrder });
+                    });
+                }
 
                 roomRef.update({ status: 'playing' });
 
@@ -888,6 +975,11 @@
             document.getElementById('opponentAttempts').textContent = '0';
             document.getElementById('historyMulti').innerHTML = '';
             document.getElementById('guessInputMulti').value = '';
+            
+            if (multiplayerMode === 'turn-based') {
+                updateTurnDisplay();
+            }
+            
             document.getElementById('guessInputMulti').focus();
         }
 
@@ -897,6 +989,17 @@
             roomRef.on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (!data) return;
+
+                // 게임 모드 저장
+                if (data.gameMode) {
+                    multiplayerMode = data.gameMode;
+                }
+
+                // 턴제 모드일 경우 현재 턴 저장
+                if (multiplayerMode === 'turn-based' && data.currentTurn) {
+                    currentTurn = data.currentTurn;
+                    updateTurnDisplay();
+                }
 
                 if (data.status === 'playing' && document.getElementById('waitingRoom').style.display === 'block') {
                     showMultiplayerGame();
@@ -915,6 +1018,7 @@
                     myData = players[pid];
                 } else {
                     opponentData = players[pid];
+                    opponentId = pid; // 상대방 ID 저장
                 }
             }
 
@@ -964,8 +1068,40 @@
             return parts.join(' ');
         }
 
+        function updateTurnDisplay() {
+            const turnInfo = document.getElementById('turnInfo');
+            const turnText = document.getElementById('turnText');
+            const guessBtn = document.getElementById('guessBtn1');
+            const guessInput = document.getElementById('guessInputMulti');
+
+            if (multiplayerMode === 'turn-based') {
+                turnInfo.style.display = 'block';
+                if (currentTurn === playerId) {
+                    turnText.textContent = getText('yourTurn');
+                    turnText.style.color = '#667eea';
+                    guessBtn.disabled = false;
+                    guessInput.disabled = false;
+                } else {
+                    turnText.textContent = getText('opponentTurn');
+                    turnText.style.color = '#e74c3c';
+                    guessBtn.disabled = true;
+                    guessInput.disabled = true;
+                }
+            } else {
+                turnInfo.style.display = 'none';
+                guessBtn.disabled = false;
+                guessInput.disabled = false;
+            }
+        }
+
         function makeGuessMulti() {
             if (gameEnded) return;
+
+            // 턴제 모드일 경우 현재 턴 체크
+            if (multiplayerMode === 'turn-based' && currentTurn !== playerId) {
+                alert(getText('errorNotYourTurn'));
+                return;
+            }
 
             const input = document.getElementById('guessInputMulti');
             const guess = input.value.trim();
@@ -991,10 +1127,24 @@
 
             if (result.strike === 3) {
                 roomRef.update({ isWinner: true });
+            } else if (multiplayerMode === 'turn-based') {
+                // 턴제 모드일 경우 턴 교체
+                switchTurn();
             }
 
             input.value = '';
             input.focus();
+        }
+
+        function switchTurn() {
+            const roomRef = database.ref('rooms/' + roomCode);
+            roomRef.child('turnOrder').once('value').then(snapshot => {
+                const turnOrder = snapshot.val() || [];
+                const currentIndex = turnOrder.indexOf(currentTurn);
+                const nextIndex = (currentIndex + 1) % turnOrder.length;
+                const nextTurn = turnOrder[nextIndex];
+                roomRef.update({ currentTurn: nextTurn });
+            });
         }
 
         function addHistoryMulti(guess, result) {
@@ -1024,7 +1174,72 @@
                 detail.textContent = getText('loseDetail', { attempts: opponentAttempts });
             }
 
+            // 멀티플레이어 버튼 표시, 혼자하기 버튼 숨김
+            document.getElementById('multiplayerButtons').style.display = 'block';
+            document.getElementById('soloButton').style.display = 'none';
+
             modal.classList.add('show');
+        }
+
+        function showSoloResult(won) {
+            const modal = document.getElementById('resultModal');
+            const emoji = document.getElementById('resultEmoji');
+            const text = document.getElementById('resultText');
+            const detail = document.getElementById('resultDetail');
+
+            if (won) {
+                emoji.textContent = '🎉';
+                text.textContent = getText('soloWinTitle');
+                detail.textContent = getText('soloWinDetail', { attempts: attempts, answer: answer });
+            } else {
+                emoji.textContent = '😢';
+                text.textContent = getText('soloLoseTitle');
+                detail.textContent = getText('soloLoseDetail', { answer: answer });
+            }
+
+            // 혼자하기 버튼 표시, 멀티플레이어 버튼 숨김
+            document.getElementById('multiplayerButtons').style.display = 'none';
+            document.getElementById('soloButton').style.display = 'block';
+
+            modal.classList.add('show');
+        }
+
+        function playAgain() {
+            // 모달 닫기
+            document.getElementById('resultModal').classList.remove('show');
+            
+            // 새 게임 시작
+            answer = generateNumber();
+            attempts = 0;
+            gameEnded = false;
+
+            // Firebase 업데이트
+            const roomRef = database.ref('rooms/' + roomCode);
+            roomRef.update({
+                answer: answer,
+                currentTurn: multiplayerMode === 'turn-based' ? (isHost ? playerId : opponentId) : null
+            });
+
+            // 플레이어 데이터 리셋
+            const playerRef = roomRef.child('players/' + playerId);
+            playerRef.update({
+                attempts: 0,
+                isWinner: false
+            });
+
+            // UI 리셋
+            document.getElementById('myAttempts').textContent = '0';
+            document.getElementById('opponentAttempts').textContent = '0';
+            document.getElementById('myStatus').textContent = getText('myStatusPlaying');
+            document.getElementById('opponentStatus').textContent = getText('opponentStatusPlaying');
+            document.getElementById('historyMulti').innerHTML = '';
+            document.getElementById('guessInputMulti').value = '';
+            
+            if (multiplayerMode === 'turn-based') {
+                updateTurnDisplay();
+            }
+
+            document.getElementById('guessInputMulti').focus();
         }
 
         function copyRoomCode() {
@@ -1072,6 +1287,9 @@
             attempts = 0;
             gameEnded = false;
             gameMode = '';
+            multiplayerMode = '';
+            currentTurn = '';
+            opponentId = '';
 
             document.getElementById('historyMulti').innerHTML = '';
             document.getElementById('historySolo').innerHTML = '';
@@ -1086,6 +1304,7 @@
         function hideAllSections() {
             document.getElementById('languageSelector').style.display = 'none';
             document.getElementById('modeSelector').style.display = 'none';
+            document.getElementById('gameModeSelection').style.display = 'none';
             document.getElementById('joinSection').style.display = 'none';
             document.getElementById('waitingRoom').style.display = 'none';
             document.getElementById('multiplayerGame').style.display = 'none';
