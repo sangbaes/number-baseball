@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Number Baseball">
+    <meta name="theme-color" content="#667eea">
+    <meta name="description" content="Play Number Baseball with friends or solo!">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest_multiplayer.json">
+    
+    <!-- iOS Icons -->
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="icon-192.png">
+    
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4YCRZYFNX4"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-4YCRZYFNX4');
+    </script>
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    
+    <title>🎮 Number Baseball</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 30px;
+            position: relative;
+        }
+
+        .version {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 11px;
+            color: rgba(102, 126, 234, 0.6);
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        /* 언어 선택 */
+        .language-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .lang-btn {
+            flex: 1;
+            padding: 20px;
+            border: 2px solid #ddd;
+            border-radius: 15px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .lang-btn:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .lang-btn .flag {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        /* 모드 선택 */
+        .mode-selector {
+            display: none;
+        }
+
+        .mode-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .mode-btn-solo {
+            grid-column: 1 / -1;
+        }
+
+        .mode-btn {
+            padding: 20px;
+            border: 2px solid #ddd;
+            border-radius: 15px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .mode-btn:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .mode-btn .icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .mode-btn .title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .mode-btn .desc {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .room-section {
+            display: none;
+        }
+
+        .room-code-display {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .room-code {
+            font-size: 36px;
+            font-weight: bold;
+            color: #667eea;
+            letter-spacing: 8px;
+            margin: 10px 0;
+        }
+
+        .copy-btn {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            letter-spacing: 8px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .players-status {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .player-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border: 3px solid transparent;
+        }
+
+        .player-card.me {
+            border-color: #667eea;
+        }
+
+        .player-card.opponent {
+            border-color: #e74c3c;
+        }
+
+        .player-name {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .player-attempts {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .player-status {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .game-area {
+            display: none;
+        }
+
+        .game-info {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .attempts {
+            font-size: 18px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .history {
+            max-height: 250px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .history-item {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .guess-number {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            letter-spacing: 5px;
+        }
+
+        .result {
+            font-size: 18px;
+            font-weight: bold;
+            padding: 5px 15px;
+            border-radius: 20px;
+            background: #667eea;
+            color: white;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 350px;
+            width: 90%;
+        }
+
+        .modal-title {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .modal-text {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .modal-detail {
+            color: #666;
+            margin: 20px 0;
+            white-space: pre-line;
+        }
+
+        .waiting-text {
+            text-align: center;
+            color: #666;
+            padding: 20px;
+            font-size: 14px;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+
+            .room-code {
+                font-size: 28px;
+                letter-spacing: 5px;
+            }
+
+            .players-status {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="version">v2.3 (Multi+Solo)</div>
+        <h1 id="mainTitle">🎮 Number Baseball</h1>
+        <p class="subtitle" id="mainSubtitle">Choose your language</p>
+
+        <!-- 언어 선택 -->
+        <div id="languageSelector" class="language-selector">
+            <div class="lang-btn" onclick="setLanguage('ko')">
+                <div class="flag">🇰🇷</div>
+                <div>한국어</div>
+            </div>
+            <div class="lang-btn" onclick="setLanguage('en')">
+                <div class="flag">🇺🇸</div>
+                <div>English</div>
+            </div>
+        </div>
+
+        <!-- 모드 선택 -->
+        <div id="modeSelector" class="mode-selector">
+            <div class="mode-grid">
+                <div class="mode-btn" onclick="createRoom()">
+                    <div class="icon">🏠</div>
+                    <div class="title" id="createRoomTitle">방 만들기</div>
+                    <div class="desc" id="createRoomDesc">친구를 초대하세요</div>
+                </div>
+                <div class="mode-btn" onclick="showJoinRoom()">
+                    <div class="icon">🚪</div>
+                    <div class="title" id="joinRoomTitle">방 입장</div>
+                    <div class="desc" id="joinRoomDesc">코드로 입장하기</div>
+                </div>
+            </div>
+            <div class="mode-btn mode-btn-solo" onclick="startSoloMode()">
+                <div class="icon">🎯</div>
+                <div class="title" id="soloModeTitle">혼자하기</div>
+                <div class="desc" id="soloModeDesc">혼자서 연습하기</div>
+            </div>
+        </div>
+
+        <!-- 방 입장 -->
+        <div id="joinSection" class="room-section">
+            <h3 style="text-align: center; margin-bottom: 20px;" id="joinTitle">방 코드 입력</h3>
+            <div class="input-group">
+                <input type="text" id="roomCodeInput" placeholder="ABC123" maxlength="6" style="text-transform: uppercase;">
+            </div>
+            <button class="btn btn-primary" onclick="joinRoom()" id="joinBtn">입장하기</button>
+            <button class="btn btn-secondary" onclick="backToMode()" id="backBtn1">돌아가기</button>
+        </div>
+
+        <!-- 대기실 -->
+        <div id="waitingRoom" class="room-section">
+            <div class="room-code-display">
+                <div style="font-size: 14px; color: #666;" id="roomCodeLabel">방 코드</div>
+                <div class="room-code" id="displayRoomCode"></div>
+                <div style="font-size: 12px; color: #999; margin-bottom: 10px;" id="shareText">이 코드를 친구에게 공유하세요!</div>
+                <button class="copy-btn" onclick="copyRoomCode()" id="copyBtn">📋 코드 복사</button>
+                <button class="copy-btn" onclick="shareRoomCode()" style="margin-left: 10px;" id="shareBtn">📤 메시지로 공유</button>
+            </div>
+
+            <div class="waiting-text">
+                <div class="spinner"></div>
+                <div style="margin-top: 10px;" id="waitingText">친구를 기다리는 중...</div>
+            </div>
+
+            <button class="btn btn-secondary" onclick="leaveRoom()" id="leaveBtn1">나가기</button>
+        </div>
+
+        <!-- 멀티플레이어 게임 화면 -->
+        <div id="multiplayerGame" class="game-area">
+            <div class="players-status">
+                <div class="player-card me">
+                    <div class="player-name" id="meLabel">🔵 나</div>
+                    <div class="player-attempts"><span id="myAttempts">0</span><span id="attemptsUnit1">회</span></div>
+                    <div class="player-status" id="myStatus">플레이 중...</div>
+                </div>
+                <div class="player-card opponent">
+                    <div class="player-name" id="opponentLabel">🔴 상대방</div>
+                    <div class="player-attempts"><span id="opponentAttempts">0</span><span id="attemptsUnit2">회</span></div>
+                    <div class="player-status" id="opponentStatus">플레이 중...</div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <input type="tel" id="guessInputMulti" maxlength="3" placeholder="000" autocomplete="off">
+            </div>
+            <button class="btn btn-primary" onclick="makeGuessMulti()" id="guessBtn1">추측하기</button>
+
+            <div class="history" id="historyMulti"></div>
+
+            <button class="btn btn-secondary" onclick="leaveRoom()" id="leaveBtn2">게임 나가기</button>
+        </div>
+
+        <!-- 혼자하기 게임 화면 -->
+        <div id="soloGame" class="game-area">
+            <div class="game-info">
+                <div class="attempts"><span id="soloAttemptsLabel">시도: </span><span id="attemptCount">0</span> / 30</div>
+            </div>
+
+            <div class="input-group">
+                <input type="tel" id="guessInputSolo" maxlength="3" placeholder="000" autocomplete="off">
+            </div>
+            <button class="btn btn-primary" onclick="makeGuessSolo()" id="guessBtn2">추측하기</button>
+
+            <div class="history" id="historySolo"></div>
+
+            <button class="btn btn-secondary" onclick="newSoloGame()" id="newGameBtn">새 게임</button>
+            <button class="btn btn-secondary" onclick="backToMode()" id="backBtn2">돌아가기</button>
+        </div>
+    </div>
+
+    <!-- 승리/패배 모달 -->
+    <div class="modal" id="resultModal">
+        <div class="modal-content">
+            <div class="modal-title" id="resultEmoji">🎉</div>
+            <div class="modal-text" id="resultText">승리!</div>
+            <div class="modal-detail" id="resultDetail"></div>
+            <button class="btn btn-primary" onclick="closeModal()" id="closeModalBtn">확인</button>
+        </div>
+    </div>
+
+    <script>
+        // 언어 데이터
+        const translations = {
+            ko: {
+                mainTitle: "🎮 숫자야구",
+                mainSubtitle: "게임 모드를 선택하세요",
+                createRoomTitle: "방 만들기",
+                createRoomDesc: "친구를 초대하세요",
+                joinRoomTitle: "방 입장",
+                joinRoomDesc: "코드로 입장하기",
+                soloModeTitle: "혼자하기",
+                soloModeDesc: "혼자서 연습하기",
+                joinTitle: "방 코드 입력",
+                joinBtn: "입장하기",
+                backBtn: "돌아가기",
+                roomCodeLabel: "방 코드",
+                shareText: "이 코드를 친구에게 공유하세요!",
+                copyBtn: "📋 코드 복사",
+                shareBtn: "📤 메시지로 공유",
+                waitingText: "친구를 기다리는 중...",
+                leaveBtn: "나가기",
+                meLabel: "🔵 나",
+                opponentLabel: "🔴 상대방",
+                attemptsUnit: "회",
+                myStatusPlaying: "플레이 중...",
+                opponentStatusPlaying: "플레이 중...",
+                myStatusWin: "🏆 승리!",
+                opponentStatusWin: "🏆 승리!",
+                guessBtn: "추측하기",
+                soloAttemptsLabel: "시도: ",
+                newGameBtn: "새 게임",
+                winTitle: "승리!",
+                winDetail: "{attempts}번 만에 맞추셨습니다!",
+                loseTitle: "패배...",
+                loseDetail: "상대방이 {attempts}번 만에 맞췄습니다.",
+                soloWinTitle: "축하합니다!",
+                soloWinDetail: "{attempts}번 만에 맞추셨습니다!\n정답: {answer}",
+                soloLoseTitle: "아쉽네요!",
+                soloLoseDetail: "30번 시도했지만 맞추지 못했습니다.\n정답: {answer}",
+                closeModalBtn: "확인",
+                errorDigits: "⚠️ 3자리 숫자를 입력하세요",
+                errorRepeating: "⚠️ 중복되지 않는 숫자를 입력하세요",
+                errorRoomCode: "6자리 방 코드를 입력하세요",
+                errorNoRoom: "존재하지 않는 방입니다",
+                errorStarted: "이미 시작된 게임입니다",
+                codeCopied: "코드가 복사되었습니다: ",
+                shareMessage: "숫자야구 게임에 초대합니다!\n방 코드: {code}\n\n링크로 바로 입장하기:\n{url}?room={code}"
+            },
+            en: {
+                mainTitle: "🎮 Number Baseball",
+                mainSubtitle: "Choose game mode",
+                createRoomTitle: "Create Room",
+                createRoomDesc: "Invite friends",
+                joinRoomTitle: "Join Room",
+                joinRoomDesc: "Enter room code",
+                soloModeTitle: "Solo Play",
+                soloModeDesc: "Practice alone",
+                joinTitle: "Enter Room Code",
+                joinBtn: "Join",
+                backBtn: "Back",
+                roomCodeLabel: "Room Code",
+                shareText: "Share this code with friends!",
+                copyBtn: "📋 Copy Code",
+                shareBtn: "📤 Share via Message",
+                waitingText: "Waiting for friend...",
+                leaveBtn: "Leave",
+                meLabel: "🔵 Me",
+                opponentLabel: "🔴 Opponent",
+                attemptsUnit: " attempts",
+                myStatusPlaying: "Playing...",
+                opponentStatusPlaying: "Playing...",
+                myStatusWin: "🏆 Win!",
+                opponentStatusWin: "🏆 Win!",
+                guessBtn: "Submit",
+                soloAttemptsLabel: "Attempts: ",
+                newGameBtn: "New Game",
+                winTitle: "Victory!",
+                winDetail: "You got it in {attempts} attempts!",
+                loseTitle: "Defeat...",
+                loseDetail: "Opponent got it in {attempts} attempts.",
+                soloWinTitle: "Congratulations!",
+                soloWinDetail: "You got it in {attempts} attempts!\nAnswer: {answer}",
+                soloLoseTitle: "Game Over!",
+                soloLoseDetail: "You've used all 30 attempts.\nAnswer: {answer}",
+                closeModalBtn: "OK",
+                errorDigits: "⚠️ Please enter a 3-digit number",
+                errorRepeating: "⚠️ Please enter non-repeating digits",
+                errorRoomCode: "Please enter a 6-digit room code",
+                errorNoRoom: "Room does not exist",
+                errorStarted: "Game already started",
+                codeCopied: "Code copied: ",
+                shareMessage: "Join my Number Baseball game!\nRoom Code: {code}\n\nDirect link:\n{url}?room={code}"
+            }
+        };
+
+        let currentLang = 'ko';
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            updateTexts();
+            document.getElementById('languageSelector').style.display = 'none';
+            document.getElementById('modeSelector').style.display = 'block';
+        }
+
+        function updateTexts() {
+            const t = translations[currentLang];
+            document.getElementById('mainTitle').textContent = t.mainTitle;
+            document.getElementById('mainSubtitle').textContent = t.mainSubtitle;
+            document.getElementById('createRoomTitle').textContent = t.createRoomTitle;
+            document.getElementById('createRoomDesc').textContent = t.createRoomDesc;
+            document.getElementById('joinRoomTitle').textContent = t.joinRoomTitle;
+            document.getElementById('joinRoomDesc').textContent = t.joinRoomDesc;
+            document.getElementById('soloModeTitle').textContent = t.soloModeTitle;
+            document.getElementById('soloModeDesc').textContent = t.soloModeDesc;
+            document.getElementById('joinTitle').textContent = t.joinTitle;
+            document.getElementById('joinBtn').textContent = t.joinBtn;
+            document.getElementById('backBtn1').textContent = t.backBtn;
+            document.getElementById('backBtn2').textContent = t.backBtn;
+            document.getElementById('roomCodeLabel').textContent = t.roomCodeLabel;
+            document.getElementById('shareText').textContent = t.shareText;
+            document.getElementById('copyBtn').textContent = t.copyBtn;
+            document.getElementById('shareBtn').textContent = t.shareBtn;
+            document.getElementById('waitingText').textContent = t.waitingText;
+            document.getElementById('leaveBtn1').textContent = t.leaveBtn;
+            document.getElementById('leaveBtn2').textContent = t.leaveBtn;
+            document.getElementById('meLabel').textContent = t.meLabel;
+            document.getElementById('opponentLabel').textContent = t.opponentLabel;
+            document.getElementById('attemptsUnit1').textContent = t.attemptsUnit;
+            document.getElementById('attemptsUnit2').textContent = t.attemptsUnit;
+            document.getElementById('myStatus').textContent = t.myStatusPlaying;
+            document.getElementById('opponentStatus').textContent = t.opponentStatusPlaying;
+            document.getElementById('guessBtn1').textContent = t.guessBtn;
+            document.getElementById('guessBtn2').textContent = t.guessBtn;
+            document.getElementById('soloAttemptsLabel').textContent = t.soloAttemptsLabel;
+            document.getElementById('newGameBtn').textContent = t.newGameBtn;
+            document.getElementById('closeModalBtn').textContent = t.closeModalBtn;
+        }
+
+        function getText(key, replacements = {}) {
+            let text = translations[currentLang][key];
+            for (let [k, v] of Object.entries(replacements)) {
+                text = text.replace(`{${k}}`, v);
+            }
+            return text;
+        }
+
+        // Firebase 설정
+        const firebaseConfig = {
+            apiKey: "AIzaSyCZqGq1dGKCZESJcqOcNlwwGtWrHld2R3k",
+            authDomain: "number-baseball-28392.firebaseapp.com",
+            databaseURL: "https://number-baseball-28392-default-rtdb.firebaseio.com",
+            projectId: "number-baseball-28392",
+            storageBucket: "number-baseball-28392.firebasestorage.app",
+            messagingSenderId: "613478280450",
+            appId: "1:613478280450:web:211ebe0e64570f4e66e61b",
+            measurementId: "G-K7Y19FJ5N7"
+        };
+
+        // Firebase 초기화
+        let app, database;
+        try {
+            app = firebase.initializeApp(firebaseConfig);
+            database = firebase.database();
+            console.log('Firebase 초기화 성공!');
+        } catch (error) {
+            console.error("Firebase 초기화 오류:", error);
+        }
+
+        let roomCode = '';
+        let playerId = 'player' + Date.now();
+        let isHost = false;
+        let answer = '';
+        let attempts = 0;
+        let gameEnded = false;
+        let gameMode = ''; // 'multiplayer' or 'solo'
+
+        function generateNumber() {
+            const digits = [];
+            while (digits.length < 3) {
+                const digit = Math.floor(Math.random() * 10);
+                if (!digits.includes(digit)) {
+                    digits.push(digit);
+                }
+            }
+            return digits.join('');
+        }
+
+        function generateRoomCode() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let code = '';
+            for (let i = 0; i < 6; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return code;
+        }
+
+        // ===== 혼자하기 모드 =====
+        function startSoloMode() {
+            gameMode = 'solo';
+            answer = generateNumber();
+            attempts = 0;
+            gameEnded = false;
+
+            hideAllSections();
+            document.getElementById('soloGame').style.display = 'block';
+            document.getElementById('attemptCount').textContent = '0';
+            document.getElementById('historySolo').innerHTML = '';
+            document.getElementById('guessInputSolo').value = '';
+            document.getElementById('guessInputSolo').focus();
+        }
+
+        function makeGuessSolo() {
+            if (gameEnded) return;
+
+            const input = document.getElementById('guessInputSolo');
+            const guess = input.value.trim();
+
+            if (guess.length !== 3 || !/^\d{3}$/.test(guess)) {
+                alert(getText('errorDigits'));
+                return;
+            }
+
+            if (new Set(guess).size !== 3) {
+                alert(getText('errorRepeating'));
+                return;
+            }
+
+            attempts++;
+            document.getElementById('attemptCount').textContent = attempts;
+
+            const result = calculateResult(answer, guess);
+            const resultStr = formatResult(result.strike, result.ball);
+
+            addHistorySolo(guess, resultStr);
+
+            if (result.strike === 3) {
+                gameEnded = true;
+                setTimeout(() => {
+                    showSoloResult(true);
+                }, 500);
+            } else if (attempts >= 30) {
+                gameEnded = true;
+                setTimeout(() => {
+                    showSoloResult(false);
+                }, 500);
+            }
+
+            input.value = '';
+            input.focus();
+        }
+
+        function addHistorySolo(guess, result) {
+            const historyEl = document.getElementById('historySolo');
+            const item = document.createElement('div');
+            item.className = 'history-item';
+            item.innerHTML = `
+                <span class="guess-number">${guess}</span>
+                <span class="result">${result}</span>
+            `;
+            historyEl.insertBefore(item, historyEl.firstChild);
+        }
+
+        function showSoloResult(won) {
+            const modal = document.getElementById('resultModal');
+            const emoji = document.getElementById('resultEmoji');
+            const text = document.getElementById('resultText');
+            const detail = document.getElementById('resultDetail');
+
+            if (won) {
+                emoji.textContent = '🎉';
+                text.textContent = getText('soloWinTitle');
+                detail.textContent = getText('soloWinDetail', { attempts: attempts, answer: answer });
+            } else {
+                emoji.textContent = '😢';
+                text.textContent = getText('soloLoseTitle');
+                detail.textContent = getText('soloLoseDetail', { answer: answer });
+            }
+
+            modal.classList.add('show');
+        }
+
+        function newSoloGame() {
+            startSoloMode();
+        }
+
+        // ===== 멀티플레이어 모드 =====
+        function createRoom() {
+            gameMode = 'multiplayer';
+            roomCode = generateRoomCode();
+            isHost = true;
+            answer = generateNumber();
+            gameEnded = false;
+            attempts = 0;
+
+            const roomRef = database.ref('rooms/' + roomCode);
+            roomRef.set({
+                answer: answer,
+                host: playerId,
+                status: 'waiting',
+                players: {
+                    [playerId]: {
+                        attempts: 0,
+                        status: 'waiting',
+                        isWinner: false
+                    }
+                },
+                createdAt: Date.now()
+            });
+
+            showWaitingRoom();
+            listenToRoom();
+        }
+
+        function showJoinRoom() {
+            hideAllSections();
+            document.getElementById('joinSection').style.display = 'block';
+        }
+
+        function joinRoom() {
+            const input = document.getElementById('roomCodeInput').value.toUpperCase();
+            if (input.length !== 6) {
+                alert(getText('errorRoomCode'));
+                return;
+            }
+
+            gameMode = 'multiplayer';
+            roomCode = input;
+            gameEnded = false;
+            attempts = 0;
+            const roomRef = database.ref('rooms/' + roomCode);
+            
+            roomRef.once('value').then((snapshot) => {
+                if (!snapshot.exists()) {
+                    alert(getText('errorNoRoom'));
+                    return;
+                }
+
+                const roomData = snapshot.val();
+                if (roomData.status !== 'waiting') {
+                    alert(getText('errorStarted'));
+                    return;
+                }
+
+                answer = roomData.answer;
+                roomRef.child('players/' + playerId).set({
+                    attempts: 0,
+                    status: 'ready',
+                    isWinner: false
+                });
+
+                roomRef.update({ status: 'playing' });
+
+                showMultiplayerGame();
+                listenToRoom();
+            });
+        }
+
+        function showWaitingRoom() {
+            hideAllSections();
+            document.getElementById('waitingRoom').style.display = 'block';
+            document.getElementById('displayRoomCode').textContent = roomCode;
+        }
+
+        function showMultiplayerGame() {
+            hideAllSections();
+            document.getElementById('multiplayerGame').style.display = 'block';
+            document.getElementById('myAttempts').textContent = '0';
+            document.getElementById('opponentAttempts').textContent = '0';
+            document.getElementById('historyMulti').innerHTML = '';
+            document.getElementById('guessInputMulti').value = '';
+            document.getElementById('guessInputMulti').focus();
+        }
+
+        function listenToRoom() {
+            const roomRef = database.ref('rooms/' + roomCode);
+            
+            roomRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (!data) return;
+
+                if (data.status === 'playing' && document.getElementById('waitingRoom').style.display === 'block') {
+                    showMultiplayerGame();
+                }
+
+                updatePlayerStatus(data.players);
+            });
+        }
+
+        function updatePlayerStatus(players) {
+            let myData = null;
+            let opponentData = null;
+
+            for (let pid in players) {
+                if (pid === playerId) {
+                    myData = players[pid];
+                } else {
+                    opponentData = players[pid];
+                }
+            }
+
+            if (myData) {
+                document.getElementById('myAttempts').textContent = myData.attempts;
+                if (myData.isWinner) {
+                    document.getElementById('myStatus').textContent = getText('myStatusWin');
+                    if (!gameEnded) {
+                        gameEnded = true;
+                        showMultiResult(true, myData.attempts, opponentData?.attempts || 0);
+                    }
+                }
+            }
+
+            if (opponentData) {
+                document.getElementById('opponentAttempts').textContent = opponentData.attempts;
+                if (opponentData.isWinner) {
+                    document.getElementById('opponentStatus').textContent = getText('opponentStatusWin');
+                    if (!gameEnded) {
+                        gameEnded = true;
+                        showMultiResult(false, myData.attempts, opponentData.attempts);
+                    }
+                }
+            }
+        }
+
+        function calculateResult(answer, guess) {
+            let strike = 0;
+            let ball = 0;
+
+            for (let i = 0; i < 3; i++) {
+                if (guess[i] === answer[i]) {
+                    strike++;
+                } else if (answer.includes(guess[i])) {
+                    ball++;
+                }
+            }
+
+            return { strike, ball };
+        }
+
+        function formatResult(strike, ball) {
+            if (strike === 0 && ball === 0) return '0';
+            const parts = [];
+            if (strike > 0) parts.push(`${strike}S`);
+            if (ball > 0) parts.push(`${ball}B`);
+            return parts.join(' ');
+        }
+
+        function makeGuessMulti() {
+            if (gameEnded) return;
+
+            const input = document.getElementById('guessInputMulti');
+            const guess = input.value.trim();
+
+            if (guess.length !== 3 || !/^\d{3}$/.test(guess)) {
+                alert(getText('errorDigits'));
+                return;
+            }
+
+            if (new Set(guess).size !== 3) {
+                alert(getText('errorRepeating'));
+                return;
+            }
+
+            attempts++;
+            const result = calculateResult(answer, guess);
+            const resultStr = formatResult(result.strike, result.ball);
+
+            addHistoryMulti(guess, resultStr);
+
+            const roomRef = database.ref('rooms/' + roomCode + '/players/' + playerId);
+            roomRef.update({ attempts: attempts });
+
+            if (result.strike === 3) {
+                roomRef.update({ isWinner: true });
+            }
+
+            input.value = '';
+            input.focus();
+        }
+
+        function addHistoryMulti(guess, result) {
+            const historyEl = document.getElementById('historyMulti');
+            const item = document.createElement('div');
+            item.className = 'history-item';
+            item.innerHTML = `
+                <span class="guess-number">${guess}</span>
+                <span class="result">${result}</span>
+            `;
+            historyEl.insertBefore(item, historyEl.firstChild);
+        }
+
+        function showMultiResult(won, myAttempts, opponentAttempts) {
+            const modal = document.getElementById('resultModal');
+            const emoji = document.getElementById('resultEmoji');
+            const text = document.getElementById('resultText');
+            const detail = document.getElementById('resultDetail');
+
+            if (won) {
+                emoji.textContent = '🎉';
+                text.textContent = getText('winTitle');
+                detail.textContent = getText('winDetail', { attempts: myAttempts });
+            } else {
+                emoji.textContent = '😢';
+                text.textContent = getText('loseTitle');
+                detail.textContent = getText('loseDetail', { attempts: opponentAttempts });
+            }
+
+            modal.classList.add('show');
+        }
+
+        function copyRoomCode() {
+            navigator.clipboard.writeText(roomCode).then(() => {
+                alert(getText('codeCopied') + roomCode);
+            });
+        }
+
+        function shareRoomCode() {
+            const text = getText('shareMessage', { 
+                code: roomCode, 
+                url: window.location.href.split('?')[0]
+            });
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: getText('mainTitle'),
+                    text: text
+                });
+            } else {
+                copyRoomCode();
+            }
+        }
+
+        function leaveRoom() {
+            if (roomCode) {
+                database.ref('rooms/' + roomCode + '/players/' + playerId).remove();
+            }
+            backToMode();
+        }
+
+        function closeModal() {
+            document.getElementById('resultModal').classList.remove('show');
+            if (gameMode === 'multiplayer') {
+                leaveRoom();
+            } else {
+                backToMode();
+            }
+        }
+
+        function backToMode() {
+            roomCode = '';
+            isHost = false;
+            answer = '';
+            attempts = 0;
+            gameEnded = false;
+            gameMode = '';
+
+            document.getElementById('historyMulti').innerHTML = '';
+            document.getElementById('historySolo').innerHTML = '';
+            document.getElementById('guessInputMulti').value = '';
+            document.getElementById('guessInputSolo').value = '';
+            document.getElementById('resultModal').classList.remove('show');
+            
+            hideAllSections();
+            document.getElementById('modeSelector').style.display = 'block';
+        }
+
+        function hideAllSections() {
+            document.getElementById('languageSelector').style.display = 'none';
+            document.getElementById('modeSelector').style.display = 'none';
+            document.getElementById('joinSection').style.display = 'none';
+            document.getElementById('waitingRoom').style.display = 'none';
+            document.getElementById('multiplayerGame').style.display = 'none';
+            document.getElementById('soloGame').style.display = 'none';
+        }
+
+        // URL에서 방 코드 확인
+        window.addEventListener('load', () => {
+            const params = new URLSearchParams(window.location.search);
+            const roomParam = params.get('room');
+            if (roomParam) {
+                setLanguage('ko'); // 기본 언어로 시작
+                document.getElementById('roomCodeInput').value = roomParam;
+                showJoinRoom();
+            }
+        });
+
+        // Enter 키 지원
+        document.getElementById('guessInputMulti').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') makeGuessMulti();
+        });
+
+        document.getElementById('guessInputSolo').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') makeGuessSolo();
+        });
+
+        document.getElementById('roomCodeInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') joinRoom();
+        });
+    </script>
+</body>
+</html>

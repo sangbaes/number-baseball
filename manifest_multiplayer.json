@@ -1,0 +1,24 @@
+{
+  "name": "숫자야구 대결",
+  "short_name": "숫자야구 대결",
+  "description": "친구와 실시간으로 대결하는 숫자 맞추기 게임!",
+  "start_url": "./number_baseball_multiplayer.html",
+  "display": "standalone",
+  "background_color": "#667eea",
+  "theme_color": "#667eea",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
