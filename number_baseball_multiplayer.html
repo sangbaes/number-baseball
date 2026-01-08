@@ -267,6 +267,17 @@
             margin-top: 5px;
         }
 
+        .last-guess {
+            font-size: 11px;
+            color: #888;
+            margin-top: 8px;
+            padding: 5px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 5px;
+            font-family: monospace;
+            letter-spacing: 1px;
+        }
+
         .game-area {
             display: none;
         }
@@ -400,7 +411,7 @@
 </head>
 <body>
     <div class="container">
-        <div class="version">v2.4 (Turn-based)</div>
+        <div class="version">v2.5 (Opponent Info)</div>
         <h1 id="mainTitle">🎮 Number Baseball</h1>
         <p class="subtitle" id="mainSubtitle">Choose your language</p>
 
@@ -494,11 +505,13 @@
                     <div class="player-name" id="meLabel">🔵 나</div>
                     <div class="player-attempts"><span id="myAttempts">0</span><span id="attemptsUnit1">회</span></div>
                     <div class="player-status" id="myStatus">플레이 중...</div>
+                    <div class="last-guess" id="myLastGuess" style="margin-top: 8px; font-size: 12px; color: #888;"></div>
                 </div>
                 <div class="player-card opponent">
                     <div class="player-name" id="opponentLabel">🔴 상대방</div>
                     <div class="player-attempts"><span id="opponentAttempts">0</span><span id="attemptsUnit2">회</span></div>
                     <div class="player-status" id="opponentStatus">플레이 중...</div>
+                    <div class="last-guess" id="opponentLastGuess" style="margin-top: 8px; font-size: 12px; color: #888;"></div>
                 </div>
             </div>
 
@@ -1024,6 +1037,13 @@
 
             if (myData) {
                 document.getElementById('myAttempts').textContent = myData.attempts;
+                
+                // 내 최근 시도 표시
+                if (myData.lastGuess && myData.lastResult) {
+                    document.getElementById('myLastGuess').textContent = 
+                        `${myData.lastGuess} → ${myData.lastResult}`;
+                }
+                
                 if (myData.isWinner) {
                     document.getElementById('myStatus').textContent = getText('myStatusWin');
                     if (!gameEnded) {
@@ -1035,6 +1055,19 @@
 
             if (opponentData) {
                 document.getElementById('opponentAttempts').textContent = opponentData.attempts;
+                
+                // 상대방 최근 시도 표시 (턴제 모드일 때만 또는 동시 모드에서도 표시)
+                if (opponentData.lastGuess && opponentData.lastResult) {
+                    const lastGuessEl = document.getElementById('opponentLastGuess');
+                    lastGuessEl.textContent = `${opponentData.lastGuess} → ${opponentData.lastResult}`;
+                    
+                    // 턴제 모드일 때는 강조 표시
+                    if (multiplayerMode === 'turn-based') {
+                        lastGuessEl.style.fontWeight = 'bold';
+                        lastGuessEl.style.color = '#e74c3c';
+                    }
+                }
+                
                 if (opponentData.isWinner) {
                     document.getElementById('opponentStatus').textContent = getText('opponentStatusWin');
                     if (!gameEnded) {
@@ -1123,7 +1156,13 @@
             addHistoryMulti(guess, resultStr);
 
             const roomRef = database.ref('rooms/' + roomCode + '/players/' + playerId);
-            roomRef.update({ attempts: attempts });
+            
+            // 시도 횟수와 최근 추측 결과를 Firebase에 저장
+            roomRef.update({ 
+                attempts: attempts,
+                lastGuess: guess,
+                lastResult: resultStr
+            });
 
             if (result.strike === 3) {
                 roomRef.update({ isWinner: true });
@@ -1224,7 +1263,9 @@
             const playerRef = roomRef.child('players/' + playerId);
             playerRef.update({
                 attempts: 0,
-                isWinner: false
+                isWinner: false,
+                lastGuess: null,
+                lastResult: null
             });
 
             // UI 리셋
@@ -1232,6 +1273,8 @@
             document.getElementById('opponentAttempts').textContent = '0';
             document.getElementById('myStatus').textContent = getText('myStatusPlaying');
             document.getElementById('opponentStatus').textContent = getText('opponentStatusPlaying');
+            document.getElementById('myLastGuess').textContent = '';
+            document.getElementById('opponentLastGuess').textContent = '';
             document.getElementById('historyMulti').innerHTML = '';
             document.getElementById('guessInputMulti').value = '';
             
