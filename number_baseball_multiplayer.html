@@ -587,12 +587,80 @@
                 font-size: 28px;
             }
         }
+    
+        /* Help / Guide */
+        .help-btn {
+            position: fixed;
+            top: 14px;
+            right: 14px;
+            z-index: 1100;
+            background: #f5ead6;
+            border: 2px solid #3d3d3d;
+            box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.2);
+            padding: 8px 10px;
+            border-radius: 10px;
+            font-family: 'Patrick Hand', cursive;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .help-btn:active { transform: translate(1px, 1px); box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.2); }
+        .help-content {
+            text-align: left;
+            max-width: 900px;
+            width: min(900px, 92vw);
+            max-height: 82vh;
+            overflow: auto;
+            padding: 28px;
+        }
+        .help-content h2 { text-align: center; margin-top: 0; }
+        .help-tabs {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 16px 0 18px 0;
+            flex-wrap: wrap;
+        }
+        .help-tab {
+            background: #fff;
+            border: 2px solid #3d3d3d;
+            box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.12);
+            padding: 8px 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: 'Patrick Hand', cursive;
+            font-size: 16px;
+        }
+        .help-tab.active { background: #ffd86b; }
+        .help-section { display: none; }
+        .help-section.active { display: block; }
+        .help-lang { display: none; }
+        .help-lang.active { display: block; }
+        .help-content ul { margin: 8px 0 12px 20px; }
+        .help-callout {
+            background: rgba(255, 255, 255, 0.55);
+            border: 2px dashed #3d3d3d;
+            padding: 12px 14px;
+            border-radius: 14px;
+            margin: 12px 0;
+        }
+        .kbd {
+            display: inline-block;
+            padding: 2px 6px;
+            border: 1px solid #3d3d3d;
+            border-bottom-width: 3px;
+            border-radius: 6px;
+            background: #fff;
+            font-size: 0.95em;
+        }
+
     </style>
 </head>
 <body>
     <div class="container">
         <div class="version">v3.0 (Notebook Style)</div>
         <h1 id="mainTitle">🎮 Number Baseball</h1>
+        <button id="helpBtn" class="help-btn" onclick="openHelp()"><span id="helpBtnLabel">사용법</span></button>
+
         <p class="subtitle" id="mainSubtitle">Choose your language</p>
 
         <!-- 언어 선택 -->
@@ -745,6 +813,12 @@
             ko: {
                 mainTitle: "🎮 숫자야구",
                 mainSubtitle: "게임 모드를 선택하세요",
+                helpBtnLabel: "사용법",
+                helpTitle: "사용법",
+                helpTabRules: "게임 룰",
+                helpTabMulti: "멀티 플레이",
+                helpTabTips: "추천 전략",
+                helpCloseBtn: "닫기",
                 createRoomTitle: "방 만들기",
                 createRoomDesc: "친구를 초대하세요",
                 joinRoomTitle: "방 입장",
@@ -865,6 +939,57 @@
             document.getElementById('modeSelector').style.display = 'block';
         }
 
+
+        // Help / Guide
+        function openHelp() {
+            const modal = document.getElementById('helpModal');
+            if (!modal) return;
+            modal.classList.add('show');
+            modal.setAttribute('aria-hidden', 'false');
+            updateHelpLanguage();
+        }
+
+        function closeHelp() {
+            const modal = document.getElementById('helpModal');
+            if (!modal) return;
+            modal.classList.remove('show');
+            modal.setAttribute('aria-hidden', 'true');
+        }
+
+        function showHelpTab(tab) {
+            const tabs = ['rules', 'multi', 'tips'];
+            tabs.forEach(t => {
+                const sec = document.getElementById('help' + (t === 'rules' ? 'Rules' : (t === 'multi' ? 'Multi' : 'Tips')));
+                if (sec) sec.classList.toggle('active', t === tab);
+                const btn = document.getElementById('helpTab' + (t === 'rules' ? 'Rules' : (t === 'multi' ? 'Multi' : 'Tips')));
+                if (btn) {
+                    btn.classList.toggle('active', t === tab);
+                    btn.setAttribute('aria-selected', t === tab ? 'true' : 'false');
+                }
+            });
+            updateHelpLanguage();
+        }
+
+        function updateHelpLanguage() {
+            const isKo = currentLang === 'ko';
+            document.querySelectorAll('.help-lang-ko').forEach(el => el.classList.toggle('active', isKo));
+            document.querySelectorAll('.help-lang-en').forEach(el => el.classList.toggle('active', !isKo));
+        }
+
+        // Close help modal when clicking outside content
+        document.addEventListener('click', function(e) {
+            const modal = document.getElementById('helpModal');
+            if (!modal || !modal.classList.contains('show')) return;
+            if (e.target === modal) closeHelp();
+        });
+
+        // Close help modal with ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeHelp();
+        });
+
+
+
         function updateTexts() {
             const t = translations[currentLang];
             document.getElementById('mainTitle').textContent = t.mainTitle;
@@ -905,6 +1030,22 @@
             document.getElementById('playAgainBtn').textContent = t.playAgainBtn;
             document.getElementById('closeModalBtn').textContent = t.closeModalBtn;
             document.getElementById('closeModalBtn2').textContent = t.closeModalBtn2;
+
+            // Help UI
+            const helpBtnLabel = document.getElementById('helpBtnLabel');
+            if (helpBtnLabel) helpBtnLabel.textContent = t.helpBtnLabel;
+            const helpTitle = document.getElementById('helpTitle');
+            if (helpTitle) helpTitle.textContent = t.helpTitle;
+            const helpTabRules = document.getElementById('helpTabRules');
+            if (helpTabRules) helpTabRules.textContent = t.helpTabRules;
+            const helpTabMulti = document.getElementById('helpTabMulti');
+            if (helpTabMulti) helpTabMulti.textContent = t.helpTabMulti;
+            const helpTabTips = document.getElementById('helpTabTips');
+            if (helpTabTips) helpTabTips.textContent = t.helpTabTips;
+            const helpCloseBtn = document.getElementById('helpCloseBtn');
+            if (helpCloseBtn) helpCloseBtn.textContent = t.helpCloseBtn;
+
+            updateHelpLanguage();
         }
 
         function getText(key, replacements = {}) {
@@ -1558,5 +1699,157 @@
             if (e.key === 'Enter') joinRoom();
         });
     </script>
+
+    <!-- Help / Guide Modal -->
+    <div id="helpModal" class="modal" aria-hidden="true">
+        <div class="modal-content help-content">
+            <h2 id="helpTitle">사용법</h2>
+
+            <div class="help-tabs" role="tablist" aria-label="Help tabs">
+                <button class="help-tab active" id="helpTabRules" onclick="showHelpTab('rules')" role="tab" aria-selected="true">게임 룰</button>
+                <button class="help-tab" id="helpTabMulti" onclick="showHelpTab('multi')" role="tab" aria-selected="false">멀티 플레이</button>
+                <button class="help-tab" id="helpTabTips" onclick="showHelpTab('tips')" role="tab" aria-selected="false">추천 전략</button>
+            </div>
+
+            <div id="helpRules" class="help-section active" role="tabpanel">
+                <div class="help-lang help-lang-ko active">
+                    <div class="help-callout">
+                        <b>숫자야구(Number Baseball)</b>는 3자리 비밀 숫자를 맞추는 추리 게임입니다.
+                    </div>
+                    <ul>
+                        <li><b>비밀 숫자</b>: 3자리, <b>중복 없는</b> 숫자 (예: 543, 207, 891)</li>
+                        <li><b>목표</b>: 정확한 3자리 숫자를 맞추면 <b>3S</b>로 승리</li>
+                        <li><b>피드백</b>:
+                            <ul>
+                                <li><b>S(스트라이크)</b>: 숫자도 맞고 <b>자리</b>도 맞음</li>
+                                <li><b>B(볼)</b>: 숫자는 맞지만 <b>자리</b>가 다름</li>
+                                <li><b>0</b>: 세 숫자 모두 포함되지 않음</li>
+                            </ul>
+                        </li>
+                        <li><b>제약</b>: 한 번의 추측(입력)에서 같은 숫자를 두 번 쓸 수 없습니다 (예: 112 ❌, 726 ✅)</li>
+                    </ul>
+
+                    <div class="help-callout">
+                        <b>예시</b><br/>
+                        비밀: 542 / 추측: 524 → <b>1S 2B</b><br/>
+                        비밀: 542 / 추측: 789 → <b>0</b><br/>
+                        비밀: 542 / 추측: 542 → <b>3S</b> (승리!)
+                    </div>
+                </div>
+
+                <div class="help-lang help-lang-en">
+                    <div class="help-callout">
+                        <b>Number Baseball</b> is a logic game where you guess a secret 3‑digit number.
+                    </div>
+                    <ul>
+                        <li><b>Secret</b>: 3 digits, <b>no repeats</b> (e.g., 543, 207, 891)</li>
+                        <li><b>Goal</b>: Guess the exact number — <b>3S</b> means you win</li>
+                        <li><b>Feedback</b>:
+                            <ul>
+                                <li><b>S (Strike)</b>: correct digit in the <b>correct position</b></li>
+                                <li><b>B (Ball)</b>: correct digit but in the <b>wrong position</b></li>
+                                <li><b>0</b>: none of your digits appear in the secret</li>
+                            </ul>
+                        </li>
+                        <li><b>Constraint</b>: no digit may appear more than once in a guess (e.g., 112 ❌, 726 ✅)</li>
+                    </ul>
+
+                    <div class="help-callout">
+                        <b>Examples</b><br/>
+                        Secret: 542 / Guess: 524 → <b>1S 2B</b><br/>
+                        Secret: 542 / Guess: 789 → <b>0</b><br/>
+                        Secret: 542 / Guess: 542 → <b>3S</b> (You win!)
+                    </div>
+                </div>
+            </div>
+
+            <div id="helpMulti" class="help-section" role="tabpanel">
+                <div class="help-lang help-lang-ko">
+                    <div class="help-callout">
+                        이 게임은 <b>혼자하기</b> 또는 <b>친구와 같은 방</b>에서 즐길 수 있습니다.
+                    </div>
+
+                    <h3>1) 방 만들기</h3>
+                    <ul>
+                        <li>메인 화면에서 <b>방 만들기</b>를 누릅니다.</li>
+                        <li>게임 방식을 선택합니다:
+                            <ul>
+                                <li><b>동시 대결</b>: 두 사람이 동시에 추측하고, <b>먼저 3S</b>를 만든 사람이 승리</li>
+                                <li><b>턴 기반</b>: 번갈아가며 추측합니다. (상대 차례엔 입력이 잠깐 잠길 수 있어요)</li>
+                            </ul>
+                        </li>
+                        <li>생성되면 <b>방 코드</b>가 표시됩니다. <b>복사/공유</b> 버튼으로 친구에게 보내세요.</li>
+                    </ul>
+
+                    <h3>2) 방 입장</h3>
+                    <ul>
+                        <li>메인 화면에서 <b>방 입장</b>을 누릅니다.</li>
+                        <li>친구가 보낸 <b>방 코드</b>를 입력하고 입장합니다.</li>
+                    </ul>
+
+                    <div class="help-callout">
+                        <b>팁</b><br/>
+                        • 같은 Wi‑Fi가 아니어도 가능합니다. 링크/코드만 공유하면 돼요.<br/>
+                        • 친구에게 공유할 때는 방 코드가 정확한지 확인하세요.
+                    </div>
+                </div>
+
+                <div class="help-lang help-lang-en">
+                    <div class="help-callout">
+                        You can play <b>Solo</b> or with a friend in the <b>same room</b>.
+                    </div>
+
+                    <h3>1) Create a room</h3>
+                    <ul>
+                        <li>On the main screen, tap <b>Create Room</b>.</li>
+                        <li>Choose a mode:
+                            <ul>
+                                <li><b>Simultaneous</b>: both players guess at the same time — first to <b>3S</b> wins</li>
+                                <li><b>Turn‑based</b>: take turns guessing (input may lock during the other player’s turn)</li>
+                            </ul>
+                        </li>
+                        <li>You’ll see a <b>Room Code</b>. Use <b>Copy/Share</b> to invite your friend.</li>
+                    </ul>
+
+                    <h3>2) Join a room</h3>
+                    <ul>
+                        <li>On the main screen, tap <b>Join Room</b>.</li>
+                        <li>Enter the <b>Room Code</b> you received and join.</li>
+                    </ul>
+
+                    <div class="help-callout">
+                        <b>Tip</b><br/>
+                        • You don’t need to be on the same Wi‑Fi — sharing the code/link is enough.<br/>
+                        • Double‑check the room code before joining.
+                    </div>
+                </div>
+            </div>
+
+            <div id="helpTips" class="help-section" role="tabpanel">
+                <div class="help-lang help-lang-ko">
+                    <ul>
+                        <li>처음엔 서로 다른 숫자를 넓게 써서 정보(스트/볼/0)를 많이 얻으세요. (예: 012, 345, 678)</li>
+                        <li><b>0</b>가 나온 숫자는 다음 추측에서 제외하세요.</li>
+                        <li><b>1S 1B</b>면 두 숫자의 <b>자리</b>를 바꿔가며 좁혀보세요.</li>
+                        <li>가능한 후보가 줄어들면, 남은 후보들만 순서대로 확인하면 빠르게 끝납니다.</li>
+                    </ul>
+                </div>
+
+                <div class="help-lang help-lang-en">
+                    <ul>
+                        <li>Start with diverse digits to collect information (e.g., 012, 345, 678).</li>
+                        <li>If you get <b>0</b>, eliminate those digits from future guesses.</li>
+                        <li>If you get <b>1S 1B</b>, try swapping positions of the known digits.</li>
+                        <li>When the candidate set is small, test the remaining candidates systematically.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div style="text-align:center; margin-top: 18px;">
+                <button id="helpCloseBtn" class="btn" onclick="closeHelp()">닫기</button>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
