@@ -956,16 +956,28 @@
             modal.setAttribute('aria-hidden', 'true');
         }
 
-        function showHelpTab(tab) {
-            const tabs = ['rules', 'multi', 'tips'];
-            tabs.forEach(t => {
-                const sec = document.getElementById('help' + (t === 'rules' ? 'Rules' : (t === 'multi' ? 'Multi' : 'Tips')));
-                if (sec) sec.classList.toggle('active', t === tab);
-                const btn = document.getElementById('helpTab' + (t === 'rules' ? 'Rules' : (t === 'multi' ? 'Multi' : 'Tips')));
-                if (btn) {
-                    btn.classList.toggle('active', t === tab);
-                    btn.setAttribute('aria-selected', t === tab ? 'true' : 'false');
+                function showHelpTab(tab) {
+            const sections = {
+                rules: document.getElementById('helpRules'),
+                multi: document.getElementById('helpMulti'),
+                tips: document.getElementById('helpTips')
+            };
+            const buttons = {
+                rules: document.getElementById('helpTabRules'),
+                multi: document.getElementById('helpTabMulti'),
+                tips: document.getElementById('helpTabTips')
+            };
+
+            ['rules', 'multi', 'tips'].forEach(k => {
+                if (sections[k]) sections[k].classList.toggle('active', k === tab);
+                if (buttons[k]) {
+                    buttons[k].classList.toggle('active', k === tab);
+                    buttons[k].setAttribute('aria-selected', k === tab ? 'true' : 'false');
                 }
+            });
+
+            updateHelpLanguage();
+        }
             });
             updateHelpLanguage();
         }
