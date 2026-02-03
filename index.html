@@ -600,7 +600,7 @@
 </head>
 <body>
     <div class="container">
-        <div class="version">v3.5</div>
+        <div class="version">v3.51</div>
         <h1 id="mainTitle">🎮 Number Baseball</h1>
         <p class="subtitle" id="mainSubtitle">Choose your language</p>
 
@@ -662,7 +662,7 @@
         <div id="joinSection" class="room-section">
             <h3 style="text-align: center; margin-bottom: 20px;" id="joinTitle">방 코드 입력</h3>
             <div class="input-group">
-                <input type="text" id="roomCodeInput" placeholder="ABC123" maxlength="6" style="text-transform: uppercase;">
+                <input type="text" id="roomCodeInput" placeholder="ABC123" maxlength="6" style="text-transform: uppercase;" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" data-form-type="other">
             </div>
             <button class="btn btn-primary" onclick="joinRoom()" id="joinBtn">입장하기</button>
             <button class="btn btn-secondary" onclick="backToMode()" id="backBtn1">돌아가기</button>
@@ -708,7 +708,7 @@
             </div>
 
             <div class="input-group">
-                <input type="tel" id="guessInputMulti" maxlength="3" placeholder="000" autocomplete="off">
+                <input type="tel" id="guessInputMulti" maxlength="3" placeholder="000" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-form-type="other">
             </div>
             <button class="btn btn-primary" onclick="makeGuessMulti()" id="guessBtn1">추측하기</button>
 
@@ -724,7 +724,7 @@
             </div>
 
             <div class="input-group">
-                <input type="tel" id="guessInputSolo" maxlength="3" placeholder="000" autocomplete="off">
+                <input type="tel" id="guessInputSolo" maxlength="3" placeholder="000" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-form-type="other">
             </div>
             <button class="btn btn-primary" onclick="makeGuessSolo()" id="guessBtn2">추측하기</button>
 
