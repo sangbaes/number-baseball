@@ -1,9 +1,9 @@
-const CACHE_NAME = 'number-baseball-v2';
+const CACHE_NAME = 'number-baseball-v3';
 const urlsToCache = [
   './number_baseball_app.html',
   './manifest.json',
-  './icon-192.png',
-  './icon-512.png'
+  './web-app-manifest-192x192.png',
+  './web-app-manifest-512x512.png'
 ];
 
 // 설치 이벤트: 파일들을 캐시에 저장
