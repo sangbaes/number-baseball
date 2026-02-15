@@ -132,20 +132,11 @@
             font-size: 16px;
         }
 
-        .language-selector-container {
-            margin-left: 20px;
-            margin-bottom: 30px;
-        }
-
         .language-selector {
             display: flex;
             gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .rules-btn {
-            width: 100%;
-            margin-top: 0;
+            margin-bottom: 30px;
+            margin-left: 20px;
         }
 
         .lang-btn {
@@ -600,23 +591,20 @@
 </head>
 <body>
     <div class="container">
-        <div class="version">v3.51</div>
+        <div class="version">v3.0 (Notebook Style)</div>
         <h1 id="mainTitle">🎮 Number Baseball</h1>
         <p class="subtitle" id="mainSubtitle">Choose your language</p>
 
         <!-- 언어 선택 -->
-        <div id="languageSelector" class="language-selector-container">
-            <div class="language-selector">
-                <div class="lang-btn" onclick="setLanguage('ko')">
-                    <div class="flag">🇰🇷</div>
-                    <div>한국어</div>
-                </div>
-                <div class="lang-btn" onclick="setLanguage('en')">
-                    <div class="flag">🇺🇸</div>
-                    <div>English</div>
-                </div>
+        <div id="languageSelector" class="language-selector">
+            <div class="lang-btn" onclick="setLanguage('ko')">
+                <div class="flag">🇰🇷</div>
+                <div>한국어</div>
             </div>
-            <button class="btn btn-secondary rules-btn" onclick="showRules()">📖 Game Rules / 게임 규칙</button>
+            <div class="lang-btn" onclick="setLanguage('en')">
+                <div class="flag">🇺🇸</div>
+                <div>English</div>
+            </div>
         </div>
 
         <!-- 모드 선택 -->
@@ -662,7 +650,17 @@
         <div id="joinSection" class="room-section">
             <h3 style="text-align: center; margin-bottom: 20px;" id="joinTitle">방 코드 입력</h3>
             <div class="input-group">
-                <input type="text" id="roomCodeInput" placeholder="ABC123" maxlength="6" style="text-transform: uppercase;" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" data-form-type="other">
+                <input type="text" 
+                       id="roomCodeInput" 
+                       placeholder="ABC123" 
+                       maxlength="6" 
+                       style="text-transform: uppercase;"
+                       autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="none"
+                       spellcheck="false"
+                       readonly
+                       onfocus="this.removeAttribute('readonly');">
             </div>
             <button class="btn btn-primary" onclick="joinRoom()" id="joinBtn">입장하기</button>
             <button class="btn btn-secondary" onclick="backToMode()" id="backBtn1">돌아가기</button>
@@ -708,7 +706,18 @@
             </div>
 
             <div class="input-group">
-                <input type="tel" id="guessInputMulti" maxlength="3" placeholder="000" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-form-type="other">
+                <input type="text" 
+                       id="guessInputMulti" 
+                       inputmode="numeric" 
+                       pattern="[0-9]*"
+                       maxlength="3" 
+                       placeholder="000" 
+                       autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="none"
+                       spellcheck="false"
+                       readonly
+                       onfocus="this.removeAttribute('readonly');">
             </div>
             <button class="btn btn-primary" onclick="makeGuessMulti()" id="guessBtn1">추측하기</button>
 
@@ -724,7 +733,18 @@
             </div>
 
             <div class="input-group">
-                <input type="tel" id="guessInputSolo" maxlength="3" placeholder="000" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-form-type="other">
+                <input type="text" 
+                       id="guessInputSolo" 
+                       inputmode="numeric" 
+                       pattern="[0-9]*"
+                       maxlength="3" 
+                       placeholder="000" 
+                       autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="none"
+                       spellcheck="false"
+                       readonly
+                       onfocus="this.removeAttribute('readonly');">
             </div>
             <button class="btn btn-primary" onclick="makeGuessSolo()" id="guessBtn2">추측하기</button>
 
@@ -732,43 +752,6 @@
 
             <button class="btn btn-secondary" onclick="newSoloGame()" id="newGameBtn">새 게임</button>
             <button class="btn btn-secondary" onclick="backToMode()" id="backBtn2">돌아가기</button>
-        </div>
-    </div>
-
-    <!-- 게임 규칙 모달 -->
-    <div class="modal" id="rulesModal">
-        <div class="modal-content" style="max-width: 450px; text-align: left;">
-            <h2 style="text-align: center; margin-bottom: 20px; font-size: 24px;">📖 Game Rules / 게임 규칙</h2>
-
-            <div style="margin-bottom: 20px;">
-                <h3 style="font-size: 18px; margin-bottom: 10px; border-bottom: 2px dashed #8b7355; padding-bottom: 5px;">🎯 Goal / 목표</h3>
-                <p style="font-size: 14px; line-height: 1.6;">
-                    <strong>EN:</strong> Guess the secret 3-digit number with NO repeating digits.<br>
-                    <strong>KR:</strong> 중복 없는 3자리 숫자를 맞추세요.
-                </p>
-            </div>
-
-            <div style="margin-bottom: 20px;">
-                <h3 style="font-size: 18px; margin-bottom: 10px; border-bottom: 2px dashed #8b7355; padding-bottom: 5px;">📊 Feedback / 결과</h3>
-                <p style="font-size: 14px; line-height: 1.8;">
-                    <strong>S (Strike):</strong> Correct digit & position / 숫자와 위치 모두 맞음<br>
-                    <strong>B (Ball):</strong> Correct digit, wrong position / 숫자만 맞음<br>
-                    <strong>0:</strong> No correct digits / 맞는 숫자 없음
-                </p>
-            </div>
-
-            <div style="margin-bottom: 25px;">
-                <h3 style="font-size: 18px; margin-bottom: 10px; border-bottom: 2px dashed #8b7355; padding-bottom: 5px;">💡 Examples / 예시</h3>
-                <div style="font-size: 13px; line-height: 1.8; background: rgba(139, 115, 85, 0.1); padding: 10px; border-left: 3px solid #8b7355;">
-                    Secret: <strong>542</strong><br>
-                    • Guess 524 → <strong>1S 2B</strong> (5✓, 2↔, 4↔)<br>
-                    • Guess 123 → <strong>1B</strong> (2↔)<br>
-                    • Guess 789 → <strong>0</strong><br>
-                    • Guess 542 → <strong>3S</strong> 🎉 WIN!
-                </div>
-            </div>
-
-            <button class="btn btn-primary" onclick="closeRulesModal()" style="width: 100%;">OK / 확인</button>
         </div>
     </div>
 
@@ -1036,15 +1019,17 @@
             if (gameEnded) return;
 
             const input = document.getElementById('guessInputSolo');
-            const guess = input.value.trim();
+            const guess = input.value.trim().replace(/[^0-9]/g, ''); // 숫자 이외 제거
 
             if (guess.length !== 3 || !/^\d{3}$/.test(guess)) {
                 alert(getText('errorDigits'));
+                input.value = ''; // 입력값 초기화
                 return;
             }
 
             if (new Set(guess).size !== 3) {
                 alert(getText('errorRepeating'));
+                input.value = ''; // 입력값 초기화
                 return;
             }
 
@@ -1366,15 +1351,17 @@
             }
 
             const input = document.getElementById('guessInputMulti');
-            const guess = input.value.trim();
+            const guess = input.value.trim().replace(/[^0-9]/g, ''); // 숫자 이외 제거
 
             if (guess.length !== 3 || !/^\d{3}$/.test(guess)) {
                 alert(getText('errorDigits'));
+                input.value = ''; // 입력값 초기화
                 return;
             }
 
             if (new Set(guess).size !== 3) {
                 alert(getText('errorRepeating'));
+                input.value = ''; // 입력값 초기화
                 return;
             }
 
@@ -1594,6 +1581,15 @@
             }
         });
 
+        // 실시간 숫자만 입력 허용
+        document.getElementById('guessInputMulti').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '').slice(0, 3);
+        });
+
+        document.getElementById('guessInputSolo').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '').slice(0, 3);
+        });
+
         // Enter 키 지원
         document.getElementById('guessInputMulti').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') makeGuessMulti();
@@ -1606,14 +1602,6 @@
         document.getElementById('roomCodeInput').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') joinRoom();
         });
-
-        function showRules() {
-            document.getElementById('rulesModal').classList.add('show');
-        }
-
-        function closeRulesModal() {
-            document.getElementById('rulesModal').classList.remove('show');
-        }
     </script>
 </body>
 </html>
