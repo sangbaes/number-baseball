@@ -1,0 +1,88 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "rooms": {
+      ".indexOn": ["isBotRoom"],
+      "$roomId": {
+        ".read": "auth != null",
+        ".write": "auth != null && (!data.exists() || data.child('players/p1/uid').val() === auth.uid || data.child('players/p2/uid').val() === auth.uid || (!data.child('players/p2').exists() && newData.child('players/p2/uid').val() === auth.uid))"
+      }
+    },
+    "publicRooms": {
+      ".read": "auth != null",
+      "$groupCode": {
+        "$roomId": {
+          ".write": "auth != null"
+        }
+      }
+    },
+    "playerProgress": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    },
+
+    "jobs": {
+      ".indexOn": ["statusKey", "status", "leaseUntil", "createdAt", "updatedAt", "workerUid", "ownerUid"],
+      "$jobId": {
+        ".read": "auth != null && (data.child('ownerUid').val() === auth.uid || data.child('workerUid').val() === auth.uid || auth.token.admin === true)",
+        ".write": "auth != null && (auth.token.admin === true || (data.exists() === false && newData.child('status').val() === 'queued' && newData.child('ownerUid').val() === auth.uid) || (data.exists() === true && data.child('workerUid').val() === auth.uid))",
+        "status": {
+          ".validate": "newData.isString() && (newData.val() === 'queued' || newData.val() === 'working' || newData.val() === 'done' || newData.val() === 'error' || newData.val() === 'cancelled')"
+        },
+        "priority": {
+          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 9999"
+        },
+        "ownerUid": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "workerUid": {
+          ".validate": "(newData.val() === null) || (auth != null && auth.token.role === 'worker' && data.val() === null && root.child('jobs').child($jobId).child('status').val() === 'queued' && newData.val() === auth.uid)"
+        },
+        "claimedAt": {
+          ".validate": "(newData.val() === null) || (auth != null && auth.token.role === 'worker' && data.val() === null && root.child('jobs').child($jobId).child('workerUid').val() === auth.uid)"
+        },
+        "statusKey": {
+          ".validate": "newData.isString()"
+        },
+        ".validate": "((!data.exists() && newData.child('status').val() === 'queued' && newData.child('createdAt').exists() && newData.child('updatedAt').exists() && newData.child('statusKey').exists()) || (data.exists() && ((data.child('status').val() === 'queued' && newData.child('status').val() === 'working' && newData.child('workerUid').val() === auth.uid) || (data.child('status').val() === 'working' && (newData.child('status').val() === 'done' || newData.child('status').val() === 'error')) || (data.child('status').val() === 'working' && newData.child('status').val() === 'cancelled') || (data.child('status').val() === 'queued' && newData.child('status').val() === 'cancelled') || (data.child('status').val() === newData.child('status').val()))))"
+      }
+    },
+    "dwg_jobs": {
+      ".indexOn": ["statusKey", "status", "leaseUntil", "createdAt", "updatedAt", "workerUid", "ownerUid"],
+      "$jobId": {
+        ".read": "auth != null && (data.child('ownerUid').val() === auth.uid || data.child('workerUid').val() === auth.uid || auth.token.admin === true)",
+        ".write": "auth != null && (auth.token.admin === true || (data.exists() === false && newData.child('status').val() === 'queued' && newData.child('ownerUid').val() === auth.uid) || (data.exists() === true && data.child('workerUid').val() === auth.uid))",
+        "status": {
+          ".validate": "newData.isString() && (newData.val() === 'queued' || newData.val() === 'working' || newData.val() === 'done' || newData.val() === 'error' || newData.val() === 'cancelled')"
+        },
+        "priority": {
+          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 9999"
+        },
+        "ownerUid": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "workerUid": {
+          ".validate": "(newData.val() === null) || (auth != null && auth.token.role === 'worker' && data.val() === null && root.child('dwg_jobs').child($jobId).child('status').val() === 'queued' && newData.val() === auth.uid)"
+        },
+        "claimedAt": {
+          ".validate": "(newData.val() === null) || (auth != null && auth.token.role === 'worker' && data.val() === null && root.child('dwg_jobs').child($jobId).child('workerUid').val() === auth.uid)"
+        },
+        "statusKey": {
+          ".validate": "newData.isString()"
+        },
+        ".validate": "((!data.exists() && newData.child('status').val() === 'queued' && newData.child('createdAt').exists() && newData.child('updatedAt').exists() && newData.child('statusKey').exists()) || (data.exists() && ((data.child('status').val() === 'queued' && newData.child('status').val() === 'working' && newData.child('workerUid').val() === auth.uid) || (data.child('status').val() === 'working' && (newData.child('status').val() === 'done' || newData.val() === 'error')) || (data.child('status').val() === 'working' && newData.child('status').val() === 'cancelled') || (data.child('status').val() === 'queued' && newData.child('status').val() === 'cancelled') || (data.child('status').val() === newData.child('status').val()))))"
+      }
+    },
+    "workerHeartbeat": {
+      ".indexOn": ["lastSeen"],
+      "$workerUid": {
+        ".read": "auth != null && (auth.uid === $workerUid || auth.token.admin === true)",
+        ".write": "auth != null && auth.uid === $workerUid && auth.token.role === 'worker'"
+      }
+    }
+  }
+}

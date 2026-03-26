@@ -1,0 +1,12 @@
+firebase:
+  service_account: "./service-account.json"
+  database_url: "https://number-baseball-28392-default-rtdb.firebaseio.com"
+
+bot:
+  name: "MyBot"                # Bot name (shown in the app)
+  group_code: "BOT"            # Public room group code
+  strategy: "my_strategy"      # Strategy file name (without .py)
+  guess_delay_seconds: 2.0     # Delay between guesses (seconds)
+  level: 1                     # Difficulty label (1=easy, 2=medium, 3=hard)
+  restart_delay_seconds: 5     # Delay before creating new room after game
+  record_dir: "./game_records" # Game recording dir for LLM training (empty = disabled)

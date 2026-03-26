@@ -1,0 +1,12 @@
+firebase:
+  service_account: "./service-account.json"
+  database_url: "https://number-baseball-28392-default-rtdb.firebaseio.com"
+
+bot:
+  name: "배추도사"
+  group_code: "BOT"
+  strategy: "my_strategy"
+  guess_delay_seconds: 2.0
+  level: 1
+  restart_delay_seconds: 5
+  record_dir: "./game_records"
