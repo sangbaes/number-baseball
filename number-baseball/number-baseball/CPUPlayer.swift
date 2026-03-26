@@ -95,7 +95,17 @@ final class CPUPlayer {
         self.pendingGuessTask = nil
         return
       }
-      let guess = strat.nextGuess(history: self.history)
+      // Level 4+ 만 상대(p2) 추론 결과를 활용 (1~3은 난이도 유지)
+      var effectiveHistory = self.history
+      if self.currentLevel >= 4 {
+        for (_, roundState) in svc.rounds {
+          if let g = roundState.guessFrom["p2"],
+             let r = roundState.resultFor["p2"] {
+            effectiveHistory.append(CPUGuessResult(guess: g.value, strike: r.strike, ball: r.ball))
+          }
+        }
+      }
+      let guess = strat.nextGuess(history: effectiveHistory)
       self.strategy = strat
 
       let (s, b) = BaseballLogic.strikeBall(secret: turnSecret, guess: guess)

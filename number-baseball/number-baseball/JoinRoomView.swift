@@ -106,7 +106,7 @@ struct JoinRoomView: View {
           .background(Color(.systemGray6))
           .clipShape(RoundedRectangle(cornerRadius: 8))
           .frame(maxWidth: 160)
-          .onChange(of: groupFilter) { _, newValue in
+          .onChange(of: groupFilter) { newValue in
             // Auto-uppercase and limit to hex chars
             let filtered = String(newValue.uppercased().filter { "0123456789ABCDEF".contains($0) }.prefix(3))
             if filtered != groupFilter { groupFilter = filtered }
@@ -164,7 +164,7 @@ struct JoinRoomView: View {
     .onAppear {
       svc.listenAllPublicRooms()
     }
-    .onChange(of: joinMode) { _, newValue in
+    .onChange(of: joinMode) { newValue in
       if newValue == .browse {
         if groupFilter.isEmpty {
           svc.listenAllPublicRooms()

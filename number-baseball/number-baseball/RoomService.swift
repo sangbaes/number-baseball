@@ -25,6 +25,9 @@ final class RoomService: ObservableObject {
   // 턴제: 서버가 정한 정답 (Firebase에서 읽어옴)
   @Published var turnSecret: String? = nil
 
+  // 대전 종료 후 상대방 정답 (동시대결: reveal에서 파싱)
+  @Published var opponentSecret: String? = nil
+
   // Public room / Group
   @Published var isPublic: Bool = false
   @Published var groupCode: String = ""
@@ -164,8 +167,6 @@ final class RoomService: ObservableObject {
   func joinRoom(code: String, name: String) {
     errorMessage = nil
 
-    // 즉시 상태 설정: navigationDestination이 바로 반응하도록 (createRoom과 동일 패턴)
-    status = "lobby"
     playerId = "p2"
     playerName = name
     roomCode = code.uppercased()
@@ -177,24 +178,23 @@ final class RoomService: ObservableObject {
       guard let self else { return }
       guard snap.exists(), let data = snap.value as? [String: Any] else {
         self.errorMessage = self.loc?.t("error.roomNotFound") ?? "Room not found."
-        self.status = "idle"; self.roomCode = ""
         return
       }
       let st = data["status"] as? String ?? "lobby"
       if st == "finished" {
         self.errorMessage = self.loc?.t("error.roomFinished") ?? "This room has already ended."
-        self.status = "idle"; self.roomCode = ""
         return
       }
       let players = (data["players"] as? [String: Any]) ?? [:]
       if players.keys.contains("p2") {
         self.errorMessage = self.loc?.t("error.roomFull") ?? "This room is already full."
-        self.status = "idle"; self.roomCode = ""
         return
       }
 
-      // Read room info before writing p2 — set gameMode early so UI renders correctly
+      // Set gameMode early so UI renders correctly before listenRoom() callback
       self.gameMode = data["gameMode"] as? String ?? "simultaneous"
+
+      // Read public/group info before writing p2
       let roomIsPublic = data["isPublic"] as? Bool ?? false
       let roomGroupCode = data["groupCode"] as? String ?? ""
 
@@ -328,6 +328,7 @@ final class RoomService: ObservableObject {
     mySalt = nil
     myCommitHash = nil
     turnSecret = nil
+    opponentSecret = nil
     isPublic = false
     groupCode = ""
     matchId = nil
@@ -413,6 +414,7 @@ final class RoomService: ObservableObject {
     mySalt         = nil
     myCommitHash   = nil
     turnSecret     = nil
+    opponentSecret = nil
     rematchRequests    = []
     rematchNewRoomCode = nil
     players        = keepPlayer ? players : [:]
@@ -589,6 +591,14 @@ final class RoomService: ObservableObject {
           self.outcome = parsed
         } else {
           self.outcome = nil
+        }
+
+        // opponent secret parse (동시대결: reveal에서 상대 정답 읽기)
+        if self.gameMode == "simultaneous",
+           let revealRaw = data["reveal"] as? [String: Any],
+           let oppData = revealRaw[self.opponentId()] as? [String: Any],
+           let oppSec = oppData["secret"] as? String {
+          self.opponentSecret = oppSec
         }
 
         // rematch parse

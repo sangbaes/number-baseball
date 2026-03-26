@@ -6,10 +6,8 @@ import FirebaseAuth
 // MARK: - App Config
 
 enum AppConfig {
-  /// 공유 링크 URL
-  /// - 출시 전: 웹사이트로 연결
-  /// - 앱스토어 승인 후: "https://apps.apple.com/app/id{실제ID}" 로 교체
-  static let appStoreURL = "https://sinbiroum.com"
+  /// 공유 링크 URL (App Store)
+  static let appStoreURL = "https://apps.apple.com/kr/app/number-baseball-2x/id6759283815"
 }
 
 private enum FirebaseSetup {

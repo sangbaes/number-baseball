@@ -4,6 +4,7 @@ struct LeagueHomeView: View {
   @EnvironmentObject var progression: ProgressionManager
   @EnvironmentObject var loc: LocalizationManager
   @EnvironmentObject var svc: RoomService
+  @EnvironmentObject var leaderboard: LeaderboardService
   @Environment(\.dismiss) private var dismiss
 
   @State private var playerName: String = ""
@@ -68,6 +69,7 @@ struct LeagueHomeView: View {
         .environmentObject(svc)
         .environmentObject(loc)
         .environmentObject(progression)
+        .environmentObject(leaderboard)
     }
   }
 

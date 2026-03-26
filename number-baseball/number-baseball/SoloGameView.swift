@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SoloGameView: View {
     @EnvironmentObject var loc: LocalizationManager
+    @EnvironmentObject var leaderboard: LeaderboardService
     @State private var answer: String = NumberBaseballLogic.generateAnswer()
     @State private var guessInput: String = ""
     @State private var attempts: Int = 0
@@ -15,6 +16,11 @@ struct SoloGameView: View {
     @FocusState private var isFocused: Bool
     @Environment(\.dismiss) private var dismiss
     @State private var shouldDismissView = false
+
+    // Leaderboard name prompt
+    @State private var showNamePrompt = false
+    @State private var nameInput: String = ""
+    @State private var pendingLeaderboardAttempts: Int = 0
 
     private let maxAttempts = 30
 
@@ -37,7 +43,7 @@ struct SoloGameView: View {
                     .background(Color(.systemGray6))
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                     .focused($isFocused)
-                    .onChange(of: guessInput) { _, newValue in
+                    .onChange(of: guessInput) { newValue in
                         guessInput = BaseballLogic.filterUniqueDigits(newValue)
                     }
                     .toolbar {
@@ -139,6 +145,18 @@ struct SoloGameView: View {
             )
             .presentationDetents([.medium])
         }
+        .alert(loc.t("leaderboard.namePrompt"), isPresented: $showNamePrompt) {
+            TextField(loc.t("leaderboard.namePlaceholder"), text: $nameInput)
+            Button(loc.t("common.ok")) {
+                let name = nameInput.trimmingCharacters(in: .whitespaces)
+                guard !name.isEmpty else { return }
+                UserDefaults.standard.set(name, forKey: "playerName")
+                leaderboard.submitSoloScore(attempts: pendingLeaderboardAttempts, displayName: name)
+            }
+            Button(loc.t("common.close"), role: .cancel) {}
+        } message: {
+            Text(loc.t("leaderboard.nameMessage"))
+        }
         .onAppear {
             isFocused = true
             GameAnalytics.screenView("solo_game")
@@ -175,6 +193,18 @@ struct SoloGameView: View {
                 resultShareText = "\(loc.t("share.soloWin", attempts))\n\(AppConfig.appStoreURL)"
                 showResultModal = true
                 GameAnalytics.soloGameWon(attempts: attempts)
+
+                // Submit to leaderboard if excellent score
+                if attempts <= LeaderboardService.soloExcellentThreshold {
+                    let savedName = UserDefaults.standard.string(forKey: "playerName") ?? ""
+                    if savedName.isEmpty {
+                        pendingLeaderboardAttempts = attempts
+                        nameInput = ""
+                        showNamePrompt = true
+                    } else {
+                        leaderboard.submitSoloScore(attempts: attempts, displayName: savedName)
+                    }
+                }
             } else if attempts >= maxAttempts {
                 resultEmoji = "😢"
                 resultTitle = loc.t("solo.loseTitle")

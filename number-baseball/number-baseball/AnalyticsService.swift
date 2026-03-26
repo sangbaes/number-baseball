@@ -94,4 +94,24 @@ enum GameAnalytics {
   static func howToPlayOpened() {
     Analytics.logEvent("how_to_play_opened", parameters: nil)
   }
+
+  // MARK: - Leaderboard
+
+  static func leaderboardTabChanged(tab: String) {
+    Analytics.logEvent("leaderboard_tab_changed", parameters: [
+      "tab": tab,
+    ])
+  }
+
+  static func soloScoreSubmitted(attempts: Int) {
+    Analytics.logEvent("solo_score_submitted", parameters: [
+      "attempts": attempts,
+    ])
+  }
+
+  static func leagueLeaderboardUpdated(level: Int) {
+    Analytics.logEvent("league_leaderboard_updated", parameters: [
+      "level": level,
+    ])
+  }
 }

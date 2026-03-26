@@ -50,7 +50,7 @@ struct CreateRoomView: View {
                 .textInputAutocapitalization(.characters)
                 .autocorrectionDisabled()
                 .font(.system(size: 16, weight: .medium, design: .monospaced))
-                .onChange(of: groupFilter) { _, newValue in
+                .onChange(of: groupFilter) { newValue in
                   let filtered = String(
                     newValue.uppercased()
                       .filter { "0123456789ABCDEF".contains($0) }
@@ -107,12 +107,12 @@ struct CreateRoomView: View {
       .disabled(name.isEmpty || (isPublic && groupMode == .existingGroup && selectedGroupCode == nil))
     }
     .navigationTitle(loc.t("create.title"))
-    .onChange(of: isPublic) { _, newValue in
+    .onChange(of: isPublic) { newValue in
       if newValue {
         svc.fetchAvailableGroups()
       }
     }
-    .onChange(of: groupMode) { _, _ in
+    .onChange(of: groupMode) { _ in
       selectedGroupCode = nil
     }
   }

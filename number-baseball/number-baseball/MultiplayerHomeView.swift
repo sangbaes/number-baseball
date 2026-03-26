@@ -6,6 +6,7 @@ import FirebaseDatabase
 struct MainMenuView: View {
   @StateObject private var svc = RoomService()
   @StateObject private var progression = ProgressionManager()
+  @StateObject private var leaderboard = LeaderboardService()
   @EnvironmentObject var loc: LocalizationManager
   @State private var showHowToPlay = false
 
@@ -82,6 +83,7 @@ struct MainMenuView: View {
                 .environmentObject(progression)
                 .environmentObject(svc)
                 .environmentObject(loc)
+                .environmentObject(leaderboard)
             } label: {
               CPUBattleCard(
                 title: loc.t("league.title"),
@@ -115,12 +117,27 @@ struct MainMenuView: View {
 
             // ── Solo Play ──
             NavigationLink {
-              SoloGameView().environmentObject(loc)
+              SoloGameView()
+                .environmentObject(loc)
+                .environmentObject(leaderboard)
             } label: {
               MenuCard(
                 icon: "🎯",
                 title: loc.t("menu.solo"),
                 desc: loc.t("menu.solo.desc")
+              )
+            }
+
+            // ── Leaderboard ──
+            NavigationLink {
+              LeaderboardView()
+                .environmentObject(loc)
+                .environmentObject(leaderboard)
+            } label: {
+              MenuCard(
+                icon: "🏅",
+                title: loc.t("leaderboard.title"),
+                desc: loc.t("leaderboard.desc")
               )
             }
           }
@@ -142,7 +159,7 @@ struct MainMenuView: View {
         GameAnalytics.screenView("main_menu")
         progression.syncFromFirebase()
       }
-      .onChange(of: loc.language) { _, _ in svc.loc = loc }
+      .onChange(of: loc.language) { _ in svc.loc = loc }
       .sheet(isPresented: $showHowToPlay) {
         HowToPlayView(loc: loc)
       }
@@ -150,8 +167,20 @@ struct MainMenuView: View {
         get: { svc.status != "idle" && !svc.roomCode.isEmpty && svc.level == 0 },
         set: { _ in }
       )) {
-        RoomFlowView().environmentObject(svc).environmentObject(loc).environmentObject(progression)
+        RoomFlowView().environmentObject(svc).environmentObject(loc).environmentObject(progression).environmentObject(leaderboard)
       }
+      .background(
+        LinearGradient(
+          colors: [
+            Color(red: 0.91, green: 0.87, blue: 0.98),  // soft lavender
+            Color(red: 0.85, green: 0.90, blue: 0.98),  // pastel blue
+            Color(red: 0.93, green: 0.88, blue: 0.96)   // light lilac
+          ],
+          startPoint: .topLeading,
+          endPoint: .bottomTrailing
+        )
+        .ignoresSafeArea()
+      )
       .alert(loc.t("common.error"), isPresented: Binding(
         get: { svc.errorMessage != nil },
         set: { if !$0 { svc.errorMessage = nil } }

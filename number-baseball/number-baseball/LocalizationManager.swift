@@ -251,6 +251,23 @@ final class LocalizationManager: ObservableObject {
     "postgame.myAttempts": "Me",
     "postgame.oppAttempts": "Opponent",
     "postgame.waiting": "Waiting for opponent...",
+    "postgame.answer": "Answer: %@",
+
+    // Leaderboard
+    "leaderboard.title": "Leaderboard",
+    "leaderboard.desc": "Top players",
+    "leaderboard.solo": "Solo",
+    "leaderboard.league": "League",
+    "leaderboard.noScores": "No scores yet",
+    "leaderboard.soloHint": "Solve in 7 or fewer attempts to make the board!",
+    "leaderboard.leagueHint": "Win CPU League matches to climb the ranks!",
+    "leaderboard.attempts": "%d tries",
+    "leaderboard.totalWins": "%d wins",
+    "leaderboard.levelBadge": "Lv.%d",
+    "leaderboard.me": "ME",
+    "leaderboard.namePrompt": "Enter Your Name",
+    "leaderboard.namePlaceholder": "Name",
+    "leaderboard.nameMessage": "Your score will be recorded on the leaderboard!",
   ]
 
   // MARK: - Korean Strings
@@ -446,6 +463,23 @@ final class LocalizationManager: ObservableObject {
     "postgame.myAttempts": "나",
     "postgame.oppAttempts": "상대",
     "postgame.waiting": "상대 동의 대기 중...",
+    "postgame.answer": "정답: %@",
+
+    // Leaderboard
+    "leaderboard.title": "리더보드",
+    "leaderboard.desc": "최고의 플레이어",
+    "leaderboard.solo": "솔로",
+    "leaderboard.league": "리그",
+    "leaderboard.noScores": "아직 기록이 없어요",
+    "leaderboard.soloHint": "7회 이내에 맞추면 리더보드에 등록돼요!",
+    "leaderboard.leagueHint": "CPU 리그에서 승리하고 순위에 올라보세요!",
+    "leaderboard.attempts": "%d회",
+    "leaderboard.totalWins": "%d승",
+    "leaderboard.levelBadge": "Lv.%d",
+    "leaderboard.me": "나",
+    "leaderboard.namePrompt": "이름을 입력하세요",
+    "leaderboard.namePlaceholder": "이름",
+    "leaderboard.nameMessage": "리더보드에 기록이 등록됩니다!",
   ]
 
   // MARK: - Japanese Strings
@@ -641,6 +675,23 @@ final class LocalizationManager: ObservableObject {
     "postgame.myAttempts": "自分",
     "postgame.oppAttempts": "相手",
     "postgame.waiting": "相手の返答を待っています...",
+    "postgame.answer": "答え: %@",
+
+    // Leaderboard
+    "leaderboard.title": "ランキング",
+    "leaderboard.desc": "トッププレイヤー",
+    "leaderboard.solo": "ソロ",
+    "leaderboard.league": "リーグ",
+    "leaderboard.noScores": "まだ記録がありません",
+    "leaderboard.soloHint": "7回以内にクリアするとランキングに登録されます！",
+    "leaderboard.leagueHint": "CPUリーグで勝利してランキングに挑戦しよう！",
+    "leaderboard.attempts": "%d回",
+    "leaderboard.totalWins": "%d勝",
+    "leaderboard.levelBadge": "Lv.%d",
+    "leaderboard.me": "自分",
+    "leaderboard.namePrompt": "名前を入力してください",
+    "leaderboard.namePlaceholder": "名前",
+    "leaderboard.nameMessage": "ランキングにスコアが登録されます！",
   ]
 
   // MARK: - Spanish Strings
@@ -833,5 +884,22 @@ final class LocalizationManager: ObservableObject {
     "postgame.leave": "Salir",
     "postgame.myAttempts": "Yo",
     "postgame.oppAttempts": "Rival",
+    "postgame.answer": "Respuesta: %@",
+
+    // Leaderboard
+    "leaderboard.title": "Clasificación",
+    "leaderboard.desc": "Mejores jugadores",
+    "leaderboard.solo": "Solo",
+    "leaderboard.league": "Liga",
+    "leaderboard.noScores": "Aún no hay registros",
+    "leaderboard.soloHint": "¡Resuelve en 7 intentos o menos para entrar en la tabla!",
+    "leaderboard.leagueHint": "¡Gana en la Liga CPU para subir en el ranking!",
+    "leaderboard.attempts": "%d intentos",
+    "leaderboard.totalWins": "%d victorias",
+    "leaderboard.levelBadge": "Nv.%d",
+    "leaderboard.me": "YO",
+    "leaderboard.namePrompt": "Ingresa tu nombre",
+    "leaderboard.namePlaceholder": "Nombre",
+    "leaderboard.nameMessage": "Tu puntuación se registrará en la clasificación!",
   ]
 }

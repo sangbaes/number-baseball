@@ -4,6 +4,7 @@ struct RoomFlowView: View {
   @EnvironmentObject var svc: RoomService
   @EnvironmentObject var loc: LocalizationManager
   @EnvironmentObject var progression: ProgressionManager
+  @EnvironmentObject var leaderboard: LeaderboardService
   @Environment(\.dismiss) private var dismiss
 
   @State private var secret = ""
@@ -167,6 +168,7 @@ struct RoomFlowView: View {
           oppName: oppName,
           myGuessCount: myGuesses.count,
           oppGuessCount: oppGuesses.count,
+          answer: svc.gameMode == "turn" ? svc.turnSecret : svc.opponentSecret,
           shareText: multiResultShareText(out: out),
           rematchPending: rematchPending,
           loc: loc,
@@ -217,20 +219,20 @@ struct RoomFlowView: View {
         cpuPlayer.start(level: effectiveLeagueLevel)
       }
     }
-    .onChange(of: svc.rounds) { _, _ in
+    .onChange(of: svc.rounds) { _ in
       svc.judgeOpponentIfNeeded()
     }
-    .onChange(of: svc.currentTurn) { _, _ in
+    .onChange(of: svc.currentTurn) { _ in
       if effectiveLeagueLevel > 0 {
         cpuPlayer.onRoomStateChanged(svc: svc)
       }
     }
-    .onChange(of: svc.status) { _, newStatus in
+    .onChange(of: svc.status) { newStatus in
       if effectiveLeagueLevel > 0 && newStatus == "playing" {
         cpuPlayer.onRoomStateChanged(svc: svc)
       }
     }
-    .onChange(of: svc.outcome) { _, out in
+    .onChange(of: svc.outcome) { out in
       guard let out else { return }
       // Analytics
       switch out.type {
@@ -266,6 +268,18 @@ struct RoomFlowView: View {
       // League mode: show inline result overlay after OutcomeBanner
       if effectiveLeagueLevel > 0 {
         leaguePlayerWon = (out.winnerId == myId)
+
+        // Update league leaderboard on win
+        if leaguePlayerWon {
+          let name = svc.playerName.isEmpty
+            ? (UserDefaults.standard.string(forKey: "playerName") ?? "")
+            : svc.playerName
+          leaderboard.updateLeagueEntry(
+            level: effectiveLeagueLevel,
+            displayName: name
+          )
+        }
+
         leagueResultTask?.cancel()
         leagueResultTask = Task {
           try? await Task.sleep(for: .seconds(1.5))
@@ -277,7 +291,7 @@ struct RoomFlowView: View {
       }
     }
     // p1: 양쪽 모두 동의하면 새 방 생성
-    .onChange(of: svc.rematchRequests) { _, requests in
+    .onChange(of: svc.rematchRequests) { requests in
       guard rematchPending else { return }
       guard svc.playerId == "p1" else { return }
       guard requests.contains("p1") && requests.contains("p2") else { return }
@@ -287,7 +301,7 @@ struct RoomFlowView: View {
       svc.performRematchAsHost(name: name, mode: mode)
     }
     // p2: 새 방 코드가 생기면 입장
-    .onChange(of: svc.rematchNewRoomCode) { _, newCode in
+    .onChange(of: svc.rematchNewRoomCode) { newCode in
       guard rematchPending else { return }
       guard svc.playerId == "p2" else { return }
       guard let code = newCode else { return }
@@ -296,7 +310,7 @@ struct RoomFlowView: View {
       svc.performRematchAsGuest(newCode: code, name: name)
     }
     // 상대가 떠나면 waiting 해제 + overlay 재표시
-    .onChange(of: svc.players) { _, newPlayers in
+    .onChange(of: svc.players) { newPlayers in
       guard rematchPending else { return }
       let opp = svc.playerId == "p1" ? "p2" : "p1"
       guard newPlayers[opp] == nil else { return }
@@ -548,7 +562,7 @@ struct RoomFlowView: View {
           .padding(.vertical, 8)
           .background(Color(.systemGray6))
           .clipShape(RoundedRectangle(cornerRadius: 10))
-          .onChange(of: secret) { _, nv in
+          .onChange(of: secret) { nv in
             secret = BaseballLogic.filterUniqueDigits(nv)
           }
 
@@ -790,7 +804,7 @@ struct RoomFlowView: View {
           .background(Color(.systemGray6))
           .clipShape(RoundedRectangle(cornerRadius: 10))
           .focused($isFocused)
-          .onChange(of: guess) { _, nv in
+          .onChange(of: guess) { nv in
             guess = BaseballLogic.filterUniqueDigits(nv)
           }
           .toolbar {
@@ -1045,6 +1059,7 @@ private struct PostGameOverlay: View {
   let oppName: String
   let myGuessCount: Int
   let oppGuessCount: Int
+  let answer: String?
   let shareText: String
   let rematchPending: Bool
   let loc: LocalizationManager
@@ -1082,7 +1097,16 @@ private struct PostGameOverlay: View {
             .foregroundStyle(.tertiary)
           attemptBox(name: oppName, count: oppGuessCount, highlight: false)
         }
-        .padding(.bottom, 20)
+        .padding(.bottom, 12)
+
+        // ── 정답 표시 ──
+        if let answer = answer {
+          let spaced = answer.map(String.init).joined(separator: " ")
+          Text(loc.t("postgame.answer", spaced))
+            .font(.system(size: 15, weight: .medium, design: .rounded))
+            .foregroundStyle(.secondary)
+            .padding(.bottom, 16)
+        }
 
         // ── 결과 공유 버튼 ──
         ShareLink(item: shareText) {
