@@ -56,7 +56,35 @@ const translations = {
         errorNoRoom: "존재하지 않는 방입니다",
         errorStarted: "이미 시작된 게임입니다",
         codeCopied: "코드가 복사되었습니다: ",
-        shareMessage: "숫자야구 게임에 초대합니다!\n방 코드: {code}\n\n링크로 바로 입장하기:\n{url}?room={code}"
+        shareMessage: "숫자야구 게임에 초대합니다!\n방 코드: {code}\n\n링크로 바로 입장하기:\n{url}?room={code}",
+
+        // League mode
+        leagueModeTitle: "리그 도전",
+        leagueModeDesc: "CPU와 5단계 대결",
+        leagueTitle: "🏆 리그 도전",
+        leagueDesc: "CPU와 5단계 리그에 도전하세요",
+        leagueBackBtn: "돌아가기",
+        leagueLeaveBtn: "게임 나가기",
+        leagueGuessBtn: "추측하기",
+        leagueMeLabel: "🔵 나",
+        leagueTryAgainBtn: "다시 도전",
+        leagueBackToLevelsBtn: "레벨 선택으로",
+        "league.level": "레벨 {n}",
+        "league.levelName.1": "초급",
+        "league.levelName.2": "중급",
+        "league.levelName.3": "고급",
+        "league.levelName.4": "전문가",
+        "league.levelName.5": "마스터",
+        "league.readyToPlay": "도전 가능",
+        "league.needWin": "레벨 {n} 승리 시 잠금 해제",
+        "league.cpuThinking": "{cpu} 추리 중...",
+        "league.youLabel": "나",
+        "league.winTitle": "🏆 승리!",
+        "league.winDetail": "{cpu} 격파! 레벨 {level} ({attempts}회)",
+        "league.unlockedNext": "다음 레벨 {n} 잠금 해제!",
+        "league.allCleared": "모든 레벨을 클리어했습니다!",
+        "league.loseTitle": "패배...",
+        "league.loseDetail": "{cpu}가 {attempts}번 만에 맞혔습니다.\n내 정답이었던 숫자: {answer}\n(레벨 {level})"
     },
     en: {
         mainTitle: "🎮 Number Baseball",
@@ -112,7 +140,35 @@ const translations = {
         errorNoRoom: "Room does not exist",
         errorStarted: "Game already started",
         codeCopied: "Code copied: ",
-        shareMessage: "Join my Number Baseball game!\nRoom Code: {code}\n\nDirect link:\n{url}?room={code}"
+        shareMessage: "Join my Number Baseball game!\nRoom Code: {code}\n\nDirect link:\n{url}?room={code}",
+
+        // League mode
+        leagueModeTitle: "League Challenge",
+        leagueModeDesc: "5 tiers vs CPU",
+        leagueTitle: "🏆 League Challenge",
+        leagueDesc: "Take on the CPU across 5 tiers",
+        leagueBackBtn: "Back",
+        leagueLeaveBtn: "Leave Match",
+        leagueGuessBtn: "Submit",
+        leagueMeLabel: "🔵 Me",
+        leagueTryAgainBtn: "Try Again",
+        leagueBackToLevelsBtn: "Back to Levels",
+        "league.level": "Level {n}",
+        "league.levelName.1": "Beginner",
+        "league.levelName.2": "Intermediate",
+        "league.levelName.3": "Advanced",
+        "league.levelName.4": "Expert",
+        "league.levelName.5": "Master",
+        "league.readyToPlay": "Ready to play",
+        "league.needWin": "Beat Level {n} to unlock",
+        "league.cpuThinking": "{cpu} thinking...",
+        "league.youLabel": "Me",
+        "league.winTitle": "🏆 Victory!",
+        "league.winDetail": "Beat {cpu}! Level {level} ({attempts} attempts)",
+        "league.unlockedNext": "Level {n} unlocked!",
+        "league.allCleared": "All levels cleared!",
+        "league.loseTitle": "Defeat...",
+        "league.loseDetail": "{cpu} got it in {attempts} attempts.\nYour secret was: {answer}\n(Level {level})"
     }
 };
 
@@ -165,6 +221,36 @@ function updateTexts() {
     document.getElementById('playAgainBtn').textContent = t.playAgainBtn;
     document.getElementById('closeModalBtn').textContent = t.closeModalBtn;
     document.getElementById('closeModalBtn2').textContent = t.closeModalBtn2;
+
+    // League mode
+    const leagueModeTitle = document.getElementById('leagueModeTitle');
+    if (leagueModeTitle) leagueModeTitle.textContent = t.leagueModeTitle;
+    const leagueModeDesc = document.getElementById('leagueModeDesc');
+    if (leagueModeDesc) leagueModeDesc.textContent = t.leagueModeDesc;
+    const leagueTitle = document.getElementById('leagueTitle');
+    if (leagueTitle) leagueTitle.textContent = t.leagueTitle;
+    const leagueDesc = document.getElementById('leagueDesc');
+    if (leagueDesc) leagueDesc.textContent = t.leagueDesc;
+    const leagueBackBtn = document.getElementById('leagueBackBtn');
+    if (leagueBackBtn) leagueBackBtn.textContent = t.leagueBackBtn;
+    const leagueLeaveBtn = document.getElementById('leagueLeaveBtn');
+    if (leagueLeaveBtn) leagueLeaveBtn.textContent = t.leagueLeaveBtn;
+    const leagueGuessBtn = document.getElementById('leagueGuessBtn');
+    if (leagueGuessBtn) leagueGuessBtn.textContent = t.leagueGuessBtn;
+    const leagueMeLabel = document.getElementById('leagueMeLabel');
+    if (leagueMeLabel) leagueMeLabel.textContent = t.leagueMeLabel;
+    const leagueTryAgainBtn = document.getElementById('leagueTryAgainBtn');
+    if (leagueTryAgainBtn) leagueTryAgainBtn.textContent = t.leagueTryAgainBtn;
+    const leagueBackToLevelsBtn = document.getElementById('leagueBackToLevelsBtn');
+    if (leagueBackToLevelsBtn) leagueBackToLevelsBtn.textContent = t.leagueBackToLevelsBtn;
+    const leagueAttemptsUnit1 = document.getElementById('leagueAttemptsUnit1');
+    if (leagueAttemptsUnit1) leagueAttemptsUnit1.textContent = t.attemptsUnit;
+    const leagueAttemptsUnit2 = document.getElementById('leagueAttemptsUnit2');
+    if (leagueAttemptsUnit2) leagueAttemptsUnit2.textContent = t.attemptsUnit;
+    const leagueMyStatus = document.getElementById('leagueMyStatus');
+    if (leagueMyStatus) leagueMyStatus.textContent = t.myStatusPlaying;
+    const leagueCpuStatus = document.getElementById('leagueCpuStatus');
+    if (leagueCpuStatus) leagueCpuStatus.textContent = t.opponentStatusPlaying;
 }
 
 function getText(key, replacements = {}) {

@@ -82,6 +82,8 @@ function showSoloResult(won) {
 
     document.getElementById('multiplayerButtons').style.display = 'none';
     document.getElementById('soloButton').style.display = 'block';
+    const lb = document.getElementById('leagueButtons');
+    if (lb) lb.style.display = 'none';
     modal.classList.add('show');
 }
 

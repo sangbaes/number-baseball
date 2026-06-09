@@ -302,6 +302,8 @@ function showMultiResult(won, myAttempts, opponentAttempts) {
 
     document.getElementById('multiplayerButtons').style.display = 'block';
     document.getElementById('soloButton').style.display = 'none';
+    const lb = document.getElementById('leagueButtons');
+    if (lb) lb.style.display = 'none';
     modal.classList.add('show');
 }
 

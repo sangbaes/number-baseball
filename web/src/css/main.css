@@ -513,11 +513,110 @@ h1 {
     100% { transform: rotate(360deg); }
 }
 
-#turnInfo {
+#turnInfo,
+#leagueTurnInfo {
     border: 2px dashed #8b7355 !important;
     background: rgba(255, 255, 255, 0.5) !important;
     color: #3d3d3d !important;
     font-size: 16px !important;
+}
+
+/* ---------- League: level cards ---------- */
+.level-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    border: 2px solid #8b7355;
+    background: rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.level-card:hover {
+    background: rgba(139, 115, 85, 0.15);
+    transform: translate(-2px, -2px);
+}
+
+.level-card:active {
+    transform: translate(0, 0);
+}
+
+.level-card.locked {
+    opacity: 0.55;
+    cursor: not-allowed;
+    border-style: dashed;
+}
+
+.level-card.locked:hover {
+    background: rgba(255, 255, 255, 0.4);
+    transform: none;
+}
+
+.level-card-icon {
+    font-size: 28px;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed #8b7355;
+    flex-shrink: 0;
+}
+
+.level-card-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.level-card-title {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.level-card-name {
+    font-weight: 700;
+    color: #3d3d3d;
+    font-size: 17px;
+}
+
+.level-card-tier {
+    font-size: 12px;
+    color: #5d5d5d;
+}
+
+.level-card-status {
+    font-size: 12px;
+    color: #5d5d5d;
+}
+
+.level-card-arrow {
+    font-size: 18px;
+    color: #3d3d3d;
+}
+
+.level-card.locked .level-card-arrow {
+    color: rgba(139, 115, 85, 0.6);
+}
+
+/* ---------- League: per-row CPU/user history styling ---------- */
+.history-actor {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #5d5d5d;
+    margin-right: 8px;
+    font-family: monospace;
+    min-width: 70px;
+}
+
+.history-item-cpu {
+    border-left-color: #8b7355;
+    background: rgba(139, 115, 85, 0.08);
 }
 
 @media (max-width: 480px) {

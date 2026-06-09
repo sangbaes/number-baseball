@@ -72,6 +72,11 @@
                 <div class="title" id="soloModeTitle">혼자하기</div>
                 <div class="desc" id="soloModeDesc">혼자서 연습하기</div>
             </div>
+            <div class="mode-btn mode-btn-solo" onclick="showLeagueHome()">
+                <div class="icon">🏆</div>
+                <div class="title" id="leagueModeTitle">리그 도전</div>
+                <div class="desc" id="leagueModeDesc">CPU와 5단계 대결</div>
+            </div>
         </div>
 
         <!-- 게임 방식 선택 -->
@@ -172,6 +177,56 @@
             <button class="btn btn-secondary" onclick="leaveRoom()" id="leaveBtn2">게임 나가기</button>
         </div>
 
+        <!-- 리그 홈 (5단계 카드) -->
+        <div id="leagueHome" class="room-section">
+            <h3 style="text-align:center;margin-bottom:8px;" id="leagueTitle">🏆 리그 도전</h3>
+            <p style="text-align:center;color:#5d5d5d;margin-bottom:20px;font-size:14px;" id="leagueDesc">CPU와 5단계 대결</p>
+            <div id="leagueLevels"></div>
+            <button class="btn btn-secondary" onclick="backToMode()" id="leagueBackBtn" style="margin-top:14px;">돌아가기</button>
+        </div>
+
+        <!-- 리그 게임 화면 -->
+        <div id="leagueGame" class="game-area">
+            <div id="leagueTurnInfo" style="text-align: center; padding: 10px; margin-bottom: 15px; font-weight: bold; display: none;">
+                <span id="leagueTurnText">당신 차례입니다!</span>
+            </div>
+
+            <div class="players-status">
+                <div class="player-card me">
+                    <div class="player-name" id="leagueMeLabel">🔵 나</div>
+                    <div class="player-attempts"><span id="leagueMyAttempts">0</span><span id="leagueAttemptsUnit1">회</span></div>
+                    <div class="player-status" id="leagueMyStatus">플레이 중...</div>
+                    <div class="last-guess" id="leagueMyLastGuess"></div>
+                </div>
+                <div class="player-card opponent">
+                    <div class="player-name">🤖 <span id="leagueCpuName">CPU</span></div>
+                    <div class="player-attempts"><span id="leagueCpuAttempts">0</span><span id="leagueAttemptsUnit2">회</span></div>
+                    <div class="player-status" id="leagueCpuStatus">플레이 중...</div>
+                    <div class="last-guess" id="leagueCpuLastGuess"></div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <input type="text"
+                       id="leagueGuessInput"
+                       inputmode="numeric"
+                       pattern="[0-9]*"
+                       maxlength="3"
+                       placeholder="000"
+                       autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="none"
+                       spellcheck="false"
+                       readonly
+                       onfocus="this.removeAttribute('readonly');">
+            </div>
+            <button class="btn btn-primary" onclick="makeLeagueGuess()" id="leagueGuessBtn">추측하기</button>
+
+            <div class="history" id="leagueHistory"></div>
+
+            <button class="btn btn-secondary" onclick="leaveLeague()" id="leagueLeaveBtn">게임 나가기</button>
+        </div>
+
         <!-- 혼자하기 게임 화면 -->
         <div id="soloGame" class="game-area">
             <div class="game-info">
@@ -214,6 +269,10 @@
             <div id="soloButton">
                 <button class="btn btn-primary" onclick="closeModal()" id="closeModalBtn">확인</button>
             </div>
+            <div id="leagueButtons" style="display: none;">
+                <button class="btn btn-primary" onclick="leagueTryAgain()" id="leagueTryAgainBtn" style="margin-bottom: 10px;">다시 도전</button>
+                <button class="btn btn-secondary" onclick="leagueBackToLevels()" id="leagueBackToLevelsBtn">레벨 선택으로</button>
+            </div>
         </div>
     </div>
 
@@ -223,6 +282,8 @@
     <script src="js/firebase-config.js"></script>
     <script src="js/solo.js"></script>
     <script src="js/multiplayer.js"></script>
+    <script src="js/league/strategy.js"></script>
+    <script src="js/league/league.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>
