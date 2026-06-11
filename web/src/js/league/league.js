@@ -1,6 +1,9 @@
 // League mode — user vs local CPU, turn-based, 5 difficulty tiers.
 // All in-memory; no Firebase rooms.
 // Depends on: i18n.js, baseball-logic.js, strategy.js.
+// Single shared secret (both race to guess) — see startLeagueMatch.
+
+console.log('[baseball] league.js v4.3 loaded — monospace digits + aligned columns');
 
 // ---------- Local progression (localStorage) ----------
 
@@ -25,6 +28,7 @@ function showLeagueHome() {
     hideAllSections();
     document.getElementById('leagueHome').style.display = 'block';
     renderLevelCards();
+    GameAnalytics.screenView('league_home');
 }
 
 function renderLevelCards() {
@@ -71,15 +75,18 @@ function startLeagueMatch(level) {
     const cfg = LEAGUE_LEVEL_CONFIGS[level];
     const cpuStrategy = makeCPUStrategy(level);
 
+    // Single shared secret — both sides race to guess it.
+    // Mirrors iOS CPUPlayer.swift which uses svc.turnSecret for both p1 and p2.
+    // CPU (p1) starts first, matching RoomService.createLocalCPURoom:
+    //   "rooms/\(roomCode)/currentTurn": "p1"
     leagueState = {
         level,
         cfg,
         cpuStrategy,
-        userSecret: generateNumber(),
-        cpuSecret: generateNumber(),
-        userHistory: [],   // user's own guesses + their (s,b) against cpuSecret
-        cpuHistory: [],    // cpu's own guesses + their (s,b) against userSecret
-        turn: 'user',
+        secret: generateNumber(),
+        userHistory: [],   // user's own guesses + (s,b) against secret
+        cpuHistory: [],    // cpu's own guesses + (s,b) against secret
+        turn: 'cpu',
         ended: false,
         userWon: false,
     };
@@ -99,7 +106,14 @@ function startLeagueMatch(level) {
     document.getElementById('leagueGuessInput').value = '';
 
     updateLeagueTurnDisplay();
-    document.getElementById('leagueGuessInput').focus();
+    // Mirror iOS ProgressionManager: league match counted as roomJoined with
+    // a per-level method tag so analytics differentiates levels.
+    GameAnalytics.screenView('league_game');
+    GameAnalytics.roomJoined('league_level_' + level);
+
+    // CPU starts (matches iOS). Schedule its first guess; user input regains
+    // focus inside runCPUTurn after CPU plays.
+    scheduleCPUTurn();
 }
 
 function updateLeagueTurnDisplay() {
@@ -137,10 +151,11 @@ function makeLeagueGuess() {
         return;
     }
 
-    const { strike, ball } = calculateResult(leagueState.cpuSecret, guess);
+    const { strike, ball } = calculateResult(leagueState.secret, guess);
     const resultStr = formatResult(strike, ball);
 
     leagueState.userHistory.push({ guess, strike, ball });
+    GameAnalytics.guessSubmitted(leagueState.userHistory.length);
     addLeagueHistoryRow('user', guess, resultStr);
 
     document.getElementById('leagueMyAttempts').textContent = leagueState.userHistory.length;
@@ -168,8 +183,15 @@ function scheduleCPUTurn() {
 function runCPUTurn() {
     if (!leagueState || leagueState.ended || leagueState.turn !== 'cpu') return;
 
-    const guess = leagueState.cpuStrategy(leagueState.cpuHistory);
-    const { strike, ball } = calculateResult(leagueState.userSecret, guess);
+    // Level 4+ peeks at the user's guesses too (same secret, so they're useful info).
+    // Mirrors CPUPlayer.swift `if self.currentLevel >= 4`.
+    let effectiveHistory = leagueState.cpuHistory;
+    if (leagueState.level >= 4) {
+        effectiveHistory = effectiveHistory.concat(leagueState.userHistory);
+    }
+
+    const guess = leagueState.cpuStrategy(effectiveHistory);
+    const { strike, ball } = calculateResult(leagueState.secret, guess);
     const resultStr = formatResult(strike, ball);
 
     leagueState.cpuHistory.push({ guess, strike, ball });
@@ -209,6 +231,9 @@ function endLeagueMatch(userWon) {
 
     if (userWon) {
         bumpUnlockedLevel(leagueState.level);
+        GameAnalytics.gameWon('league', leagueState.userHistory.length);
+    } else {
+        GameAnalytics.gameLost('league', leagueState.userHistory.length);
     }
 
     const modal = document.getElementById('resultModal');
@@ -235,19 +260,39 @@ function endLeagueMatch(userWon) {
             level: leagueState.level,
             cpu: leagueState.cfg.cpuName,
             attempts: leagueState.cpuHistory.length,
-            answer: leagueState.cpuSecret,
+            answer: leagueState.secret,
         });
     }
 
     document.getElementById('multiplayerButtons').style.display = 'none';
     document.getElementById('soloButton').style.display = 'none';
     document.getElementById('leagueButtons').style.display = 'block';
+
+    // Primary button:
+    //   win + next level available → "Next Challenge →"
+    //   win + final level cleared  → hide (only "Back to Levels" remains)
+    //   loss                       → "Try Again" (same level)
+    const primaryBtn = document.getElementById('leagueTryAgainBtn');
+    if (userWon && leagueState.level < 5) {
+        primaryBtn.textContent = getText('leagueNextChallengeBtn');
+        primaryBtn.style.display = '';
+    } else if (userWon) {
+        primaryBtn.style.display = 'none';
+    } else {
+        primaryBtn.textContent = getText('leagueTryAgainBtn');
+        primaryBtn.style.display = '';
+    }
+
     modal.classList.add('show');
 }
 
 function leagueTryAgain() {
     document.getElementById('resultModal').classList.remove('show');
-    if (leagueState) startLeagueMatch(leagueState.level);
+    if (!leagueState) return;
+    // Win → advance to next level; loss → retry same level.
+    const goNext = leagueState.userWon && leagueState.level < 5;
+    const targetLevel = goNext ? leagueState.level + 1 : leagueState.level;
+    startLeagueMatch(targetLevel);
 }
 
 function leagueBackToLevels() {

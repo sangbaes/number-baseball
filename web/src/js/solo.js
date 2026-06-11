@@ -13,6 +13,9 @@ function startSoloMode() {
     document.getElementById('historySolo').innerHTML = '';
     document.getElementById('guessInputSolo').value = '';
     document.getElementById('guessInputSolo').focus();
+
+    GameAnalytics.screenView('solo_game');
+    GameAnalytics.soloGameStarted();
 }
 
 function makeGuessSolo() {
@@ -35,6 +38,7 @@ function makeGuessSolo() {
 
     attempts++;
     document.getElementById('attemptCount').textContent = attempts;
+    GameAnalytics.guessSubmitted(attempts);
 
     const result = calculateResult(answer, guess);
     const resultStr = formatResult(result.strike, result.ball);
@@ -43,9 +47,11 @@ function makeGuessSolo() {
 
     if (result.strike === 3) {
         gameEnded = true;
+        GameAnalytics.soloGameWon(attempts);
         setTimeout(() => showSoloResult(true), 500);
     } else if (attempts >= 30) {
         gameEnded = true;
+        GameAnalytics.soloGameLost();
         setTimeout(() => showSoloResult(false), 500);
     }
 

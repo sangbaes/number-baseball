@@ -68,6 +68,7 @@ const translations = {
         leagueGuessBtn: "추측하기",
         leagueMeLabel: "🔵 나",
         leagueTryAgainBtn: "다시 도전",
+        leagueNextChallengeBtn: "다음 도전 →",
         leagueBackToLevelsBtn: "레벨 선택으로",
         "league.level": "레벨 {n}",
         "league.levelName.1": "초급",
@@ -84,7 +85,7 @@ const translations = {
         "league.unlockedNext": "다음 레벨 {n} 잠금 해제!",
         "league.allCleared": "모든 레벨을 클리어했습니다!",
         "league.loseTitle": "패배...",
-        "league.loseDetail": "{cpu}가 {attempts}번 만에 맞혔습니다.\n내 정답이었던 숫자: {answer}\n(레벨 {level})"
+        "league.loseDetail": "{cpu}가 {attempts}번 만에 맞혔습니다.\n정답: {answer}\n(레벨 {level})"
     },
     en: {
         mainTitle: "🎮 Number Baseball",
@@ -152,6 +153,7 @@ const translations = {
         leagueGuessBtn: "Submit",
         leagueMeLabel: "🔵 Me",
         leagueTryAgainBtn: "Try Again",
+        leagueNextChallengeBtn: "Next Challenge →",
         leagueBackToLevelsBtn: "Back to Levels",
         "league.level": "Level {n}",
         "league.levelName.1": "Beginner",
@@ -168,7 +170,7 @@ const translations = {
         "league.unlockedNext": "Level {n} unlocked!",
         "league.allCleared": "All levels cleared!",
         "league.loseTitle": "Defeat...",
-        "league.loseDetail": "{cpu} got it in {attempts} attempts.\nYour secret was: {answer}\n(Level {level})"
+        "league.loseDetail": "{cpu} got it in {attempts} attempts.\nAnswer: {answer}\n(Level {level})"
     }
 };
 
@@ -179,6 +181,8 @@ function setLanguage(lang) {
     updateTexts();
     document.getElementById('languageSelector').style.display = 'none';
     document.getElementById('modeSelector').style.display = 'block';
+    GameAnalytics.languageChanged(lang);
+    GameAnalytics.screenView('main_menu');
 }
 
 function updateTexts() {

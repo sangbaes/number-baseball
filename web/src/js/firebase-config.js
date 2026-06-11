@@ -16,6 +16,12 @@ let app, database;
 try {
     app = firebase.initializeApp(firebaseConfig);
     database = firebase.database();
+    // Boot Analytics so events stream to the GA4 property linked to the
+    // Firebase project (G-K7Y19FJ5N7 — same one iOS reports to).
+    // firebase-analytics-compat.js auto-loads gtag.js under the hood.
+    if (firebase.analytics) {
+        firebase.analytics();
+    }
     console.log('Firebase initialized.');
 } catch (error) {
     console.error("Firebase init error:", error);

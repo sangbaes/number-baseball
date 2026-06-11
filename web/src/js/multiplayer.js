@@ -15,6 +15,9 @@ function createRoom(mode) {
     gameEnded = false;
     attempts = 0;
 
+    GameAnalytics.gameModeSelected(mode);
+    GameAnalytics.roomCreated(mode, false);
+
     const roomRef = database.ref('rooms/' + roomCode);
     const roomData = {
         answer: answer,
@@ -87,6 +90,7 @@ function joinRoom() {
 
         roomRef.update({ status: 'playing' });
 
+        GameAnalytics.roomJoined('code');
         showMultiplayerGame();
         listenToRoom();
     });
@@ -101,6 +105,7 @@ function showWaitingRoom() {
 function showMultiplayerGame() {
     hideAllSections();
     document.getElementById('multiplayerGame').style.display = 'block';
+    GameAnalytics.screenView('multiplayer_game');
     document.getElementById('myAttempts').textContent = '0';
     document.getElementById('opponentAttempts').textContent = '0';
     document.getElementById('historyMulti').innerHTML = '';
@@ -240,6 +245,7 @@ function makeGuessMulti() {
     }
 
     attempts++;
+    GameAnalytics.guessSubmitted(attempts);
     const result = calculateResult(answer, guess);
     const resultStr = formatResult(result.strike, result.ball);
 
@@ -294,10 +300,12 @@ function showMultiResult(won, myAttempts, opponentAttempts) {
         emoji.textContent = '🎉';
         text.textContent = getText('winTitle');
         detail.textContent = getText('winDetail', { attempts: myAttempts });
+        GameAnalytics.gameWon(multiplayerMode, myAttempts);
     } else {
         emoji.textContent = '😢';
         text.textContent = getText('loseTitle');
         detail.textContent = getText('loseDetail', { attempts: opponentAttempts });
+        GameAnalytics.gameLost(multiplayerMode, myAttempts);
     }
 
     document.getElementById('multiplayerButtons').style.display = 'block';
@@ -369,6 +377,7 @@ function shareRoomCode() {
 function leaveRoom() {
     if (roomCode) {
         database.ref('rooms/' + roomCode + '/players/' + playerId).remove();
+        GameAnalytics.roomLeft();
     }
     backToMode();
 }

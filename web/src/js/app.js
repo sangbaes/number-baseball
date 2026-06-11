@@ -37,6 +37,7 @@ function backToMode() {
 
     hideAllSections();
     document.getElementById('modeSelector').style.display = 'block';
+    GameAnalytics.screenView('main_menu');
 }
 
 function hideAllSections() {

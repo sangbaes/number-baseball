@@ -243,15 +243,16 @@ h1 {
 .input-group input {
     width: 100%;
     padding: 15px;
-    font-size: 20px;
+    font-size: 26px;
     border: none;
     border-bottom: 2px solid #8b7355;
     text-align: center;
-    font-weight: 600;
-    letter-spacing: 8px;
+    font-weight: 700;
+    letter-spacing: 14px;
     background: transparent;
     color: #3d3d3d;
-    font-family: 'Caveat', cursive;
+    /* Monospace for legibility + automatic per-digit column alignment. */
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
     outline: none;
 }
 
@@ -359,14 +360,15 @@ h1 {
 }
 
 .last-guess {
-    font-size: 12px;
-    color: #5d5d5d;
+    font-size: 14px;
+    color: #3d3d3d;
     margin-top: 8px;
     padding: 8px;
     background: rgba(139, 115, 85, 0.1);
     border-left: 2px solid #8b7355;
-    font-family: 'Caveat', cursive;
-    letter-spacing: 2px;
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+    letter-spacing: 1px;
+    font-weight: 600;
 }
 
 .game-area {
@@ -416,12 +418,25 @@ h1 {
     align-items: center;
 }
 
+/* League rows have an extra "actor" label; pin it to a fixed width so
+   the digit columns line up across all rows regardless of label length. */
+.history-item-user,
+.history-item-cpu {
+    display: grid;
+    grid-template-columns: 92px 1fr auto;
+    gap: 12px;
+    align-items: center;
+}
+
 .guess-number {
     font-size: 22px;
     font-weight: 700;
     color: #3d3d3d;
-    letter-spacing: 5px;
-    font-family: 'Caveat', cursive;
+    letter-spacing: 10px;
+    /* Monospace ensures every digit takes the same width, so column N of
+       row A sits directly above column N of row B. */
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+    text-align: center;
 }
 
 .result {
@@ -609,9 +624,14 @@ h1 {
     text-transform: uppercase;
     letter-spacing: 1px;
     color: #5d5d5d;
-    margin-right: 8px;
-    font-family: monospace;
-    min-width: 70px;
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+    /* Fixed width keeps digit columns aligned across rows. Long CPU names
+       (e.g. CPU-Beginner) are truncated rather than pushing digits over. */
+    width: 92px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-right: 0;
 }
 
 .history-item-cpu {
