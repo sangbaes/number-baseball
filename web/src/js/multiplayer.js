@@ -6,7 +6,7 @@ function showGameModeSelection(_action) {
     document.getElementById('gameModeSelection').style.display = 'block';
 }
 
-function createRoom(mode) {
+async function createRoom(mode) {
     gameMode = 'multiplayer';
     multiplayerMode = mode;
     roomCode = generateRoomCode();
@@ -18,7 +18,16 @@ function createRoom(mode) {
     GameAnalytics.gameModeSelected(mode);
     GameAnalytics.roomCreated(mode, false);
 
-    const roomRef = database.ref('rooms/' + roomCode);
+    // RTDB rules require auth — wait for anonymous sign-in before writing.
+    try {
+        await authReady;
+    } catch (e) {
+        alert(getText('errorAuth'));
+        backToMode();
+        return;
+    }
+
+    const roomRef = database.ref('webRooms/' + roomCode);
     const roomData = {
         answer: answer,
         host: playerId,
@@ -46,7 +55,7 @@ function showJoinRoom() {
     document.getElementById('joinSection').style.display = 'block';
 }
 
-function joinRoom() {
+async function joinRoom() {
     const input = document.getElementById('roomCodeInput').value.toUpperCase();
     if (input.length !== 6) {
         alert(getText('errorRoomCode'));
@@ -57,7 +66,16 @@ function joinRoom() {
     roomCode = input;
     gameEnded = false;
     attempts = 0;
-    const roomRef = database.ref('rooms/' + roomCode);
+
+    try {
+        await authReady;
+    } catch (e) {
+        alert(getText('errorAuth'));
+        backToMode();
+        return;
+    }
+
+    const roomRef = database.ref('webRooms/' + roomCode);
 
     roomRef.once('value').then((snapshot) => {
         if (!snapshot.exists()) {
@@ -119,7 +137,7 @@ function showMultiplayerGame() {
 }
 
 function listenToRoom() {
-    const roomRef = database.ref('rooms/' + roomCode);
+    const roomRef = database.ref('webRooms/' + roomCode);
 
     roomRef.on('value', (snapshot) => {
         const data = snapshot.val();
@@ -251,7 +269,7 @@ function makeGuessMulti() {
 
     addHistoryMulti(guess, resultStr);
 
-    const roomRef = database.ref('rooms/' + roomCode + '/players/' + playerId);
+    const roomRef = database.ref('webRooms/' + roomCode + '/players/' + playerId);
     roomRef.update({
         attempts: attempts,
         lastGuess: guess,
@@ -269,7 +287,7 @@ function makeGuessMulti() {
 }
 
 function switchTurn() {
-    const roomRef = database.ref('rooms/' + roomCode);
+    const roomRef = database.ref('webRooms/' + roomCode);
     roomRef.child('turnOrder').once('value').then(snapshot => {
         const turnOrder = snapshot.val() || [];
         const currentIndex = turnOrder.indexOf(currentTurn);
@@ -322,7 +340,7 @@ function playAgain() {
     attempts = 0;
     gameEnded = false;
 
-    const roomRef = database.ref('rooms/' + roomCode);
+    const roomRef = database.ref('webRooms/' + roomCode);
     roomRef.update({
         answer: answer,
         currentTurn: multiplayerMode === 'turn-based' ? (isHost ? playerId : opponentId) : null
@@ -376,7 +394,7 @@ function shareRoomCode() {
 
 function leaveRoom() {
     if (roomCode) {
-        database.ref('rooms/' + roomCode + '/players/' + playerId).remove();
+        database.ref('webRooms/' + roomCode + '/players/' + playerId).remove();
         GameAnalytics.roomLeft();
     }
     backToMode();

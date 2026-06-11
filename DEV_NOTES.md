@@ -1,5 +1,60 @@
 # DEV_NOTES
 
+## 2026-06-11 — 다크 리스타일 + 사용설명서 + 웹 멀티플레이 활성화
+
+iOS 앱과 같은 GA4 속성으로 통합된 이후, 같은 날 세 가지 큰 작업을 묶어 진행.
+
+### 완료한 작업 1: 사용설명서 페이지 + sinbiroum 다크 톤 전면 리스타일
+- `web/src/js/analytics.js`에 `howToPlayOpened()` 헬퍼 추가 (iOS 동일)
+- 사용설명서 페이지 신규 — iOS `HowToPlayView` 1:1 미러
+  - 4섹션: 🎯 목표 / 💡 피드백 (S·B·OUT 배지) / 📋 규칙 (번호 원형) / 🧩 예시 (색 dot으로 단서 수준 표현)
+  - `help.*` 17개 키 한/영 추가 ([i18n.js](web/src/js/i18n.js))
+  - 진입점: 모드 선택 하단 "ℹ️ 게임 방법" subtle 텍스트 링크
+  - 분석: `GameAnalytics.howToPlayOpened()`
+- `main.css` 전면 재작성 (sinbiroum.com 메인과 디자인 토큰 일치)
+  - 컬러: `--bg-deep #04091A` / `--bg-card #0C1530` / `--cyan #3DFFD0` / `--gold #E8B84B`
+  - 폰트: Cormorant Garamond (제목·점수) + Syne (버튼·라벨) + JetBrains Mono (숫자·태그)
+  - 시그니처: 48px 시안 그리드 BG, 블러 글로우 오브, 12px 라운드, fadeInUp 진입 애니메이션, hover translateY(-2~3px)
+  - 플레이어 카드: 내 카드 시안 그라데이션, 상대/CPU 골드 그라데이션
+- 캐시 버스터 v4.4 → v4.5
+
+### 완료한 작업 2: 웹 멀티플레이 활성화 (Phase 3 부분 — `/webRooms` 격리 방식)
+**진단**: RTDB 규칙이 `auth != null` 요구하는데 웹은 익명 로그인이 없어서 v3.1 이후 멀티플레이 무동작이었음. 또한 iOS는 commit-reveal로 각자 비밀, 웹은 공유 비밀이라 스키마 자체가 호환 안 됨 (자세한 비교는 conversation history).
+
+**선택한 방향**: 풀 인터옵(B 풀버전)은 6-10시간 작업이라 후속으로 미루고, B' (웹 전용 네임스페이스로 격리) 채택. 1-2시간.
+
+- `database.rules.json`에 `/webRooms` 블록 추가 (`auth != null`만 요구, iOS의 `/rooms`와 완전 분리)
+- `index.html`: `firebase-auth-compat.js` SDK 로드
+- `firebase-config.js`: `firebase.auth()` 초기화, `signInAnonymously()` 호출 + `authReady` 글로벌 Promise 노출
+  - 패턴: 첫 `onAuthStateChanged` 콜백이 user면 캐시 세션 복원 → resolve, null이면 signInAnonymously 트리거. `signInTriggered` 가드로 중복 호출 방지
+- `multiplayer.js`: `rooms/` → `webRooms/` (7곳), `createRoom`/`joinRoom`을 async로 만들고 `await authReady`로 인증 대기
+- `i18n.js`: `errorAuth` 키 한/영 추가
+- 캐시 버스터 v4.5 → v4.7 (배포 중 한 번 더 콘텐츠 변경으로 4.6 건너뜀)
+
+### sinbiroum-web 별도 레포 변경 (수동 커밋·배포 필요)
+- `sinbiroum-web/firebase.json`의 `/baseball/**` CSP `connect-src`에 두 호스트 추가:
+  - `https://identitytoolkit.googleapis.com` (익명 가입)
+  - `https://securetoken.googleapis.com` (토큰 갱신)
+- 적용 후 `firebase deploy --only hosting:sinbiroum-v1` 실행함
+
+### 배포 시 만난 문제 (참고)
+- **`.firebaserc` gitignored라 신규 클론 후 누락** → `{"projects":{"default":"number-baseball-28392"}}` 다시 생성
+- **Firebase CLI 멀티 계정**: `sangbaekim@sinbiroum.com`(sinbiroum-v1 호스팅)과 `rabiteye21@gmail.com`(number-baseball-28392 RTDB)이 다른 계정. `firebase login:add`로 보조 계정 추가, 명령마다 `--account rabiteye21@gmail.com` 플래그 명시
+
+### 부수 산출물
+- `qr-baseball.png` — https://sinbiroum.com/baseball/ QR (600×600, ECC-H)
+- `Number-Baseball-Intro.docx` — A4 세로 1페이지 게임 소개서 (QR + 사용설명서 내용). LinkedIn/오프라인 공유용
+
+### 알려진 제약
+- 웹 유저끼리만 매칭 가능 (`/webRooms`). iOS 유저는 자신의 `/rooms`에서만 보임.
+- iOS ↔ 웹 풀 인터옵은 commit-reveal 프로토콜 웹 포팅 필요 — 후속 작업
+
+### 다음에 할 일 (변경 없음 + 추가)
+- 기존: Phase 3 잔여 (키 TTL), Phase 4 (리더보드 — 솔로 먼저)
+- 신규: iOS ↔ 웹 풀 인터옵 (수요 확인 후, commit-reveal 웹 포팅)
+
+---
+
 ## 2026-06-11 — 웹 버전 Firebase Analytics 통합
 
 ### 문제

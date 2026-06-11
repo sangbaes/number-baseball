@@ -6,6 +6,12 @@
         ".write": "auth != null && (!data.exists() || data.child('players/p1/uid').val() === auth.uid || data.child('players/p2/uid').val() === auth.uid || (!data.child('players/p2').exists() && newData.child('players/p2/uid').val() === auth.uid))"
       }
     },
+    "webRooms": {
+      "$roomId": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      }
+    },
     "publicRooms": {
       ".read": "auth != null",
       "$groupCode": {

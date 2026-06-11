@@ -55,6 +55,7 @@ const translations = {
         errorRoomCode: "6자리 방 코드를 입력하세요",
         errorNoRoom: "존재하지 않는 방입니다",
         errorStarted: "이미 시작된 게임입니다",
+        errorAuth: "⚠️ 접속에 실패했습니다. 다시 시도해주세요.",
         codeCopied: "코드가 복사되었습니다: ",
         shareMessage: "숫자야구 게임에 초대합니다!\n방 코드: {code}\n\n링크로 바로 입장하기:\n{url}?room={code}",
 
@@ -85,7 +86,30 @@ const translations = {
         "league.unlockedNext": "다음 레벨 {n} 잠금 해제!",
         "league.allCleared": "모든 레벨을 클리어했습니다!",
         "league.loseTitle": "패배...",
-        "league.loseDetail": "{cpu}가 {attempts}번 만에 맞혔습니다.\n정답: {answer}\n(레벨 {level})"
+        "league.loseDetail": "{cpu}가 {attempts}번 만에 맞혔습니다.\n정답: {answer}\n(레벨 {level})",
+
+        // How to Play — mirrors LocalizationManager.swift help.* keys
+        helpLinkBtn: "ℹ️ 게임 방법",
+        "help.title": "게임 방법",
+        "help.goal": "목표",
+        "help.goalDesc": "숫자가 겹치지 않는 비밀 3자리 숫자를 맞추세요.",
+        "help.feedback": "피드백",
+        "help.strikeDesc": "S (스트라이크) — 숫자와 위치 모두 맞음",
+        "help.ballDesc": "B (볼) — 숫자는 맞지만 위치가 다름",
+        "help.outDesc": "OUT — 맞는 숫자가 없음",
+        "help.rules": "규칙",
+        "help.rule1": "비밀 번호는 3자리 (0~9)이며 각 숫자는 한 번만 사용됩니다.",
+        "help.rule2": "추측도 중복 없는 3자리 숫자여야 합니다.",
+        "help.rule3": "불가: 112, 555, 000 (숫자 중복)",
+        "help.example": "예시",
+        "help.exampleTitle": "정답: 8 9 4",
+        "help.ex1": "추측 123 → OUT (1,2,3 제거)",
+        "help.ex2": "추측 456 → 1B (4,5,6 중 하나 맞음)",
+        "help.ex3": "추측 789 → 2B (7,8,9 중 둘 맞음)",
+        "help.ex4": "추측 489 → 3B (모두 맞지만 위치 다름)",
+        "help.ex5": "추측 849 → 1S 2B (거의 다 왔다!)",
+        "help.ex6": "추측 894 → 3S — 정답!",
+        helpCloseBtn: "닫기"
     },
     en: {
         mainTitle: "🎮 Number Baseball",
@@ -140,6 +164,7 @@ const translations = {
         errorRoomCode: "Please enter a 6-digit room code",
         errorNoRoom: "Room does not exist",
         errorStarted: "Game already started",
+        errorAuth: "⚠️ Connection failed. Please try again.",
         codeCopied: "Code copied: ",
         shareMessage: "Join my Number Baseball game!\nRoom Code: {code}\n\nDirect link:\n{url}?room={code}",
 
@@ -170,7 +195,30 @@ const translations = {
         "league.unlockedNext": "Level {n} unlocked!",
         "league.allCleared": "All levels cleared!",
         "league.loseTitle": "Defeat...",
-        "league.loseDetail": "{cpu} got it in {attempts} attempts.\nAnswer: {answer}\n(Level {level})"
+        "league.loseDetail": "{cpu} got it in {attempts} attempts.\nAnswer: {answer}\n(Level {level})",
+
+        // How to Play
+        helpLinkBtn: "ℹ️ How to Play",
+        "help.title": "How to Play",
+        "help.goal": "Goal",
+        "help.goalDesc": "Guess the secret 3-digit number with no repeating digits.",
+        "help.feedback": "Feedback",
+        "help.strikeDesc": "S (Strike) — Correct digit in the correct position",
+        "help.ballDesc": "B (Ball) — Correct digit in the wrong position",
+        "help.outDesc": "OUT — No correct digits at all",
+        "help.rules": "Rules",
+        "help.rule1": "The secret number has 3 digits (0–9), each used only once.",
+        "help.rule2": "Your guess must also have 3 unique digits.",
+        "help.rule3": "Invalid: 112, 555, 000 (repeating digits)",
+        "help.example": "Example",
+        "help.exampleTitle": "Secret: 8 9 4",
+        "help.ex1": "Guess 123 → OUT (eliminate 1,2,3)",
+        "help.ex2": "Guess 456 → 1B (one of 4,5,6 correct)",
+        "help.ex3": "Guess 789 → 2B (two of 7,8,9 correct)",
+        "help.ex4": "Guess 489 → 3B (all correct, wrong positions)",
+        "help.ex5": "Guess 849 → 1S 2B (getting closer)",
+        "help.ex6": "Guess 894 → 3S — You win!",
+        helpCloseBtn: "Close"
     }
 };
 
@@ -255,6 +303,33 @@ function updateTexts() {
     if (leagueMyStatus) leagueMyStatus.textContent = t.myStatusPlaying;
     const leagueCpuStatus = document.getElementById('leagueCpuStatus');
     if (leagueCpuStatus) leagueCpuStatus.textContent = t.opponentStatusPlaying;
+
+    // How to Play
+    const setText = (id, key) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = t[key];
+    };
+    setText('helpLinkBtn', 'helpLinkBtn');
+    setText('helpTitle', 'help.title');
+    setText('helpGoal', 'help.goal');
+    setText('helpGoalDesc', 'help.goalDesc');
+    setText('helpFeedback', 'help.feedback');
+    setText('helpStrikeDesc', 'help.strikeDesc');
+    setText('helpBallDesc', 'help.ballDesc');
+    setText('helpOutDesc', 'help.outDesc');
+    setText('helpRules', 'help.rules');
+    setText('helpRule1', 'help.rule1');
+    setText('helpRule2', 'help.rule2');
+    setText('helpRule3', 'help.rule3');
+    setText('helpExample', 'help.example');
+    setText('helpExampleTitle', 'help.exampleTitle');
+    setText('helpEx1', 'help.ex1');
+    setText('helpEx2', 'help.ex2');
+    setText('helpEx3', 'help.ex3');
+    setText('helpEx4', 'help.ex4');
+    setText('helpEx5', 'help.ex5');
+    setText('helpEx6', 'help.ex6');
+    setText('helpCloseBtn', 'helpCloseBtn');
 }
 
 function getText(key, replacements = {}) {

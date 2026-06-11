@@ -70,5 +70,9 @@ const GameAnalytics = (() => {
         soloGameLost() {
             log('solo_game_lost', {});
         },
+
+        howToPlayOpened() {
+            log('how_to_play_opened', {});
+        },
     };
 })();

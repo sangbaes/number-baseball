@@ -1,143 +1,192 @@
+/* Number Baseball — dark aesthetic matched to sinbiroum.com main page.
+   Design tokens (colors / fonts / radii) are kept in :root so future tweaks
+   ripple everywhere. Markup IDs/classes are unchanged from v4.4 so JS
+   selectors and event hooks keep working without edits. */
+
+:root {
+    --bg-deep: #04091A;
+    --bg-mid: #080F24;
+    --bg-card: #0C1530;
+    --bg-card-hover: #111D3B;
+    --cyan: #3DFFD0;
+    --cyan-dim: rgba(61, 255, 208, 0.12);
+    --cyan-border: rgba(61, 255, 208, 0.2);
+    --gold: #E8B84B;
+    --gold-dim: rgba(232, 184, 75, 0.12);
+    --gold-border: rgba(232, 184, 75, 0.3);
+    --red: #ff6b8a;
+    --green: #4CAF50;
+    --text-primary: #EAF0FF;
+    --text-secondary: #7D93BF;
+    --text-muted: #3D4F75;
+    --border: rgba(255, 255, 255, 0.07);
+    --border-strong: rgba(255, 255, 255, 0.15);
+    --radius: 12px;
+    --radius-sm: 8px;
+    --radius-xs: 6px;
+}
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
-    font-family: 'Patrick Hand', 'Caveat', cursive;
-    background: #d4c4a8;
-    background-image:
-        repeating-linear-gradient(
-            0deg,
-            transparent,
-            transparent 31px,
-            rgba(139, 115, 85, 0.15) 31px,
-            rgba(139, 115, 85, 0.15) 32px
-        );
+    font-family: 'Syne', system-ui, -apple-system, sans-serif;
+    font-weight: 400;
+    line-height: 1.7;
+    background: var(--bg-deep);
+    color: var(--text-primary);
     min-height: 100vh;
     display: flex;
     justify-content: center;
-    align-items: center;
-    padding: 20px;
+    align-items: flex-start;
+    padding: 32px 20px;
     position: relative;
+    overflow-x: hidden;
 }
 
+/* 48px grid overlay — same as sinbiroum hero. */
 body::before {
     content: '';
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    inset: 0;
     background-image:
-        radial-gradient(circle at 20% 50%, transparent 0%, rgba(139, 115, 85, 0.03) 100%),
-        radial-gradient(circle at 80% 80%, transparent 0%, rgba(139, 115, 85, 0.03) 100%);
+        linear-gradient(rgba(61, 255, 208, 0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(61, 255, 208, 0.025) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Soft glow orbs — fixed so they hang behind content during scroll. */
+body::after {
+    content: '';
+    position: fixed;
+    top: -10%;
+    left: -10%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(61, 255, 208, 0.06), transparent 70%);
+    filter: blur(120px);
     pointer-events: none;
     z-index: 0;
 }
 
 .container {
-    background: #f5ead6;
-    border: 2px solid #8b7355;
-    box-shadow:
-        0 2px 0 #8b7355,
-        0 4px 8px rgba(0, 0, 0, 0.15);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
     max-width: 600px;
     width: 100%;
-    padding: 40px 30px;
+    padding: 36px 28px;
     position: relative;
     z-index: 1;
-    background-image:
-        repeating-linear-gradient(
-            0deg,
-            transparent,
-            transparent 31px,
-            rgba(139, 115, 85, 0.1) 31px,
-            rgba(139, 115, 85, 0.1) 32px
-        );
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 .container::before {
     content: '';
     position: absolute;
-    left: 30px;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background: rgba(255, 0, 0, 0.2);
+    inset: 0;
+    background: radial-gradient(circle at 30% 0%, rgba(61, 255, 208, 0.04), transparent 60%);
+    border-radius: var(--radius);
+    pointer-events: none;
 }
 
 .version {
     position: absolute;
-    top: 10px;
-    right: 15px;
+    top: 14px;
+    right: 16px;
     font-size: 10px;
-    color: rgba(139, 115, 85, 0.5);
-    font-family: monospace;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    z-index: 2;
 }
 
 h1 {
     text-align: center;
-    color: #3d3d3d;
+    color: var(--text-primary);
     margin-bottom: 8px;
-    font-size: 32px;
+    font-size: 36px;
     font-weight: 700;
-    text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5);
-    font-family: 'Caveat', cursive;
+    font-family: 'Cormorant Garamond', serif;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+    position: relative;
+    z-index: 1;
 }
 
 .subtitle {
     text-align: center;
-    color: #5d5d5d;
+    color: var(--text-secondary);
     margin-bottom: 30px;
-    font-size: 16px;
+    font-size: 14px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    position: relative;
+    z-index: 1;
 }
 
+/* ---------- Language selector ---------- */
 .language-selector {
     display: flex;
-    gap: 15px;
+    gap: 14px;
     margin-bottom: 30px;
-    margin-left: 20px;
+    position: relative;
+    z-index: 1;
 }
 
 .lang-btn {
     flex: 1;
-    padding: 20px;
-    border: 2px dashed #8b7355;
-    background: rgba(255, 255, 255, 0.3);
+    padding: 24px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-mid);
     cursor: pointer;
-    transition: all 0.2s;
+    transition: border-color 0.2s, background 0.2s, transform 0.2s;
     text-align: center;
-    font-size: 16px;
-    position: relative;
+    color: var(--text-primary);
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
 }
 
 .lang-btn:hover {
-    background: rgba(139, 115, 85, 0.1);
-    transform: translateY(-1px);
+    border-color: var(--cyan-border);
+    background: var(--bg-card-hover);
+    transform: translateY(-2px);
 }
 
 .lang-btn:active {
-    transform: translateY(1px);
+    transform: translateY(0);
 }
 
 .lang-btn .flag {
-    font-size: 40px;
+    font-size: 36px;
     margin-bottom: 10px;
-    filter: grayscale(0.3);
 }
 
+/* ---------- Mode selector ---------- */
 .mode-selector {
     display: none;
-    margin-left: 20px;
+    position: relative;
+    z-index: 1;
 }
 
 .mode-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin-bottom: 15px;
+    gap: 14px;
+    margin-bottom: 14px;
 }
 
 .mode-btn-solo {
@@ -145,150 +194,180 @@ h1 {
 }
 
 .mode-btn {
-    padding: 20px;
-    border: 2px solid #8b7355;
-    background: rgba(255, 255, 255, 0.4);
+    padding: 22px 18px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-mid);
     cursor: pointer;
-    transition: all 0.2s;
+    transition: border-color 0.2s, background 0.2s, transform 0.2s;
     text-align: center;
-    position: relative;
-}
-
-.mode-btn::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    right: -2px;
-    width: 100%;
-    height: 100%;
-    border: 2px solid #8b7355;
-    z-index: -1;
-    background: rgba(139, 115, 85, 0.05);
+    color: var(--text-primary);
 }
 
 .mode-btn:hover {
-    background: rgba(139, 115, 85, 0.15);
-    transform: translate(-2px, -2px);
+    border-color: var(--cyan-border);
+    background: var(--bg-card-hover);
+    transform: translateY(-3px);
 }
 
 .mode-btn:active {
-    transform: translate(0, 0);
+    transform: translateY(0);
 }
 
 .mode-btn .icon {
-    font-size: 36px;
-    margin-bottom: 10px;
-    filter: grayscale(0.5);
+    font-size: 32px;
+    margin-bottom: 12px;
 }
 
 .mode-btn .title {
-    font-size: 20px;
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
     font-weight: 700;
-    color: #3d3d3d;
-    margin-bottom: 5px;
+    color: var(--text-primary);
+    margin-bottom: 4px;
 }
 
 .mode-btn .desc {
-    font-size: 14px;
-    color: #5d5d5d;
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    letter-spacing: 0.04em;
 }
 
-.room-section {
+/* "How to Play" entry — subtle text button under the mode grid. */
+.help-link {
+    display: block;
+    width: fit-content;
+    margin: 18px auto 0;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    padding: 8px 14px;
+    transition: color 0.2s;
+}
+
+.help-link:hover {
+    color: var(--cyan);
+}
+
+/* ---------- Room / waiting / game sections ---------- */
+.room-section,
+.game-area {
     display: none;
-    margin-left: 20px;
+    position: relative;
+    z-index: 1;
 }
 
 .room-code-display {
-    background: rgba(255, 255, 255, 0.5);
-    padding: 20px;
-    border: 2px dashed #8b7355;
+    background: var(--bg-mid);
+    border: 1px solid var(--cyan-border);
+    border-radius: var(--radius);
+    padding: 24px 20px;
     text-align: center;
     margin-bottom: 20px;
 }
 
+.room-code-display > div:first-child {
+    color: var(--text-secondary) !important;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11px !important;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
 .room-code {
-    font-size: 36px;
+    font-size: 38px;
     font-weight: 700;
-    color: #3d3d3d;
-    letter-spacing: 8px;
-    margin: 10px 0;
-    font-family: 'Caveat', cursive;
+    color: var(--cyan);
+    letter-spacing: 12px;
+    margin: 12px 0;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
 }
 
 .copy-btn {
-    padding: 10px 20px;
-    background: #3d3d3d;
-    color: #f5ead6;
-    border: 2px solid #3d3d3d;
+    padding: 10px 18px;
+    background: var(--cyan-dim);
+    color: var(--cyan);
+    border: 1px solid var(--cyan-border);
+    border-radius: var(--radius-sm);
     cursor: pointer;
-    font-size: 14px;
+    font-size: 12px;
     margin-top: 10px;
-    font-family: 'Patrick Hand', cursive;
-    transition: all 0.2s;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    letter-spacing: 0.06em;
+    transition: background 0.2s, border-color 0.2s;
 }
 
 .copy-btn:hover {
-    background: #2d2d2d;
-    transform: translateY(-1px);
+    background: rgba(61, 255, 208, 0.2);
+    border-color: rgba(61, 255, 208, 0.4);
 }
 
-.copy-btn:active {
-    transform: translateY(1px);
-}
-
+/* ---------- Inputs ---------- */
 .input-group {
-    margin-bottom: 20px;
+    margin-bottom: 18px;
 }
 
 .input-group input {
     width: 100%;
-    padding: 15px;
-    font-size: 26px;
-    border: none;
-    border-bottom: 2px solid #8b7355;
+    padding: 16px;
+    font-size: 28px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
     text-align: center;
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: 14px;
-    background: transparent;
-    color: #3d3d3d;
+    background: var(--bg-mid);
+    color: var(--text-primary);
     /* Monospace for legibility + automatic per-digit column alignment. */
-    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+    font-family: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
     outline: none;
+    transition: border-color 0.2s, background 0.2s;
 }
 
 .input-group input:focus {
-    border-bottom: 3px solid #3d3d3d;
+    border-color: var(--cyan);
+    background: var(--bg-card-hover);
 }
 
 .input-group input::placeholder {
-    color: rgba(139, 115, 85, 0.4);
+    color: var(--text-muted);
+    letter-spacing: 14px;
 }
 
+/* ---------- Buttons ---------- */
 .btn {
     width: 100%;
-    padding: 15px;
-    font-size: 18px;
+    padding: 14px;
+    font-size: 14px;
     font-weight: 700;
-    border: 2px solid #3d3d3d;
+    border-radius: var(--radius-sm);
     cursor: pointer;
-    transition: all 0.2s;
-    font-family: 'Patrick Hand', cursive;
-    position: relative;
+    transition: background 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    font-family: 'Syne', sans-serif;
+    letter-spacing: 0.04em;
+    border: 1px solid transparent;
 }
 
 .btn:disabled {
-    opacity: 0.4;
+    opacity: 0.35;
     cursor: not-allowed;
 }
 
 .btn-primary {
-    background: #3d3d3d;
-    color: #f5ead6;
+    background: var(--cyan);
+    color: var(--bg-deep);
+    border-color: var(--cyan);
 }
 
 .btn-primary:hover:not(:disabled) {
-    background: #2d2d2d;
     transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(61, 255, 208, 0.25);
 }
 
 .btn-primary:active:not(:disabled) {
@@ -296,123 +375,144 @@ h1 {
 }
 
 .btn-secondary {
-    background: rgba(255, 255, 255, 0.5);
-    color: #3d3d3d;
+    background: transparent;
+    color: var(--text-primary);
+    border: 1px solid var(--border-strong);
     margin-top: 10px;
-    border: 2px dashed #8b7355;
 }
 
 .btn-secondary:hover {
-    background: rgba(139, 115, 85, 0.15);
+    border-color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.03);
 }
 
+/* ---------- Player status cards ---------- */
 .players-status {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 15px;
+    gap: 12px;
     margin-bottom: 20px;
 }
 
 .player-card {
-    background: rgba(255, 255, 255, 0.4);
-    padding: 15px;
-    border: 2px solid #8b7355;
-    position: relative;
-}
-
-.player-card::before {
-    content: '';
-    position: absolute;
-    top: 5px;
-    left: 5px;
-    right: 5px;
-    bottom: 5px;
-    border: 1px dashed rgba(139, 115, 85, 0.3);
+    background: var(--bg-mid);
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: border-color 0.2s;
 }
 
 .player-card.me {
-    border-color: #3d3d3d;
-    border-width: 3px;
+    border-color: var(--cyan-border);
+    background: linear-gradient(135deg, var(--bg-mid), rgba(61, 255, 208, 0.04));
 }
 
 .player-card.opponent {
-    border-color: #8b7355;
+    border-color: var(--gold-border);
+    background: linear-gradient(135deg, var(--bg-mid), rgba(232, 184, 75, 0.04));
 }
 
 .player-name {
+    font-family: 'Syne', sans-serif;
     font-weight: 700;
+    font-size: 14px;
+    color: var(--text-primary);
     margin-bottom: 10px;
-    color: #3d3d3d;
-    font-size: 18px;
 }
 
 .player-attempts {
-    font-size: 28px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
     font-weight: 700;
-    color: #3d3d3d;
-    font-family: 'Caveat', cursive;
+    color: var(--cyan);
+    line-height: 1;
+}
+
+.player-card.opponent .player-attempts {
+    color: var(--gold);
 }
 
 .player-status {
-    font-size: 14px;
-    color: #5d5d5d;
-    margin-top: 5px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
 }
 
 .last-guess {
-    font-size: 14px;
-    color: #3d3d3d;
-    margin-top: 8px;
-    padding: 8px;
-    background: rgba(139, 115, 85, 0.1);
-    border-left: 2px solid #8b7355;
-    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 12px;
+    color: var(--text-primary) !important;
+    margin-top: 10px;
+    padding: 8px 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border-left: 2px solid var(--cyan);
+    border-radius: 0 var(--radius-xs) var(--radius-xs) 0;
     letter-spacing: 1px;
-    font-weight: 600;
+    font-weight: 500;
 }
 
-.game-area {
-    display: none;
-    margin-left: 20px;
+.player-card.opponent .last-guess {
+    border-left-color: var(--gold);
 }
 
+/* ---------- Game area / history ---------- */
 .game-info {
-    background: rgba(255, 255, 255, 0.5);
-    border: 2px dashed #8b7355;
-    padding: 15px;
+    background: var(--bg-mid);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 18px;
 }
 
 .attempts {
-    font-size: 20px;
-    color: #3d3d3d;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 14px;
+    color: var(--text-secondary);
+    letter-spacing: 0.08em;
+}
+
+#attemptCount {
+    color: var(--cyan);
     font-weight: 700;
+    font-size: 18px;
 }
 
 .history {
-    max-height: 250px;
+    max-height: 280px;
     overflow-y: auto;
-    margin-bottom: 20px;
+    margin-bottom: 18px;
+    padding-right: 4px;
 }
 
 .history::-webkit-scrollbar {
-    width: 8px;
+    width: 6px;
 }
 
 .history::-webkit-scrollbar-track {
-    background: rgba(139, 115, 85, 0.1);
+    background: var(--bg-mid);
+    border-radius: 3px;
 }
 
 .history::-webkit-scrollbar-thumb {
-    background: rgba(139, 115, 85, 0.4);
+    background: var(--text-muted);
+    border-radius: 3px;
+}
+
+.history::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
 }
 
 .history-item {
-    background: rgba(255, 255, 255, 0.4);
-    border-left: 3px solid #3d3d3d;
-    padding: 12px;
-    margin-bottom: 10px;
+    background: var(--bg-mid);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--cyan);
+    border-radius: var(--radius-xs);
+    padding: 10px 14px;
+    margin-bottom: 8px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -428,37 +528,50 @@ h1 {
     align-items: center;
 }
 
+.history-item-cpu {
+    border-left-color: var(--gold);
+    background: var(--bg-mid);
+}
+
 .guess-number {
-    font-size: 22px;
-    font-weight: 700;
-    color: #3d3d3d;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
     letter-spacing: 10px;
-    /* Monospace ensures every digit takes the same width, so column N of
-       row A sits directly above column N of row B. */
-    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
     text-align: center;
 }
 
 .result {
-    font-size: 18px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 12px;
     font-weight: 700;
-    padding: 5px 15px;
-    background: #3d3d3d;
-    color: #f5ead6;
-    font-family: 'Patrick Hand', cursive;
+    padding: 4px 12px;
+    background: var(--cyan-dim);
+    color: var(--cyan);
+    border: 1px solid var(--cyan-border);
+    border-radius: var(--radius-xs);
+    letter-spacing: 0.06em;
 }
 
+.history-item-cpu .result {
+    background: var(--gold-dim);
+    color: var(--gold);
+    border-color: var(--gold-border);
+}
+
+/* ---------- Modal ---------- */
 .modal {
     display: none;
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(61, 61, 61, 0.8);
+    inset: 0;
+    background: rgba(4, 9, 26, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     justify-content: center;
     align-items: center;
     z-index: 1000;
+    padding: 20px;
 }
 
 .modal.show {
@@ -466,61 +579,75 @@ h1 {
 }
 
 .modal-content {
-    background: #f5ead6;
-    border: 3px solid #3d3d3d;
-    box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.2);
-    padding: 40px;
+    background: var(--bg-card);
+    border: 1px solid var(--cyan-border);
+    border-radius: var(--radius);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    padding: 40px 32px;
     text-align: center;
-    max-width: 350px;
-    width: 90%;
+    max-width: 380px;
+    width: 100%;
     position: relative;
+    overflow: hidden;
 }
 
 .modal-content::before {
     content: '';
     position: absolute;
-    top: 10px;
-    left: 10px;
-    right: 10px;
-    bottom: 10px;
-    border: 2px dashed rgba(139, 115, 85, 0.3);
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 400px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(61, 255, 208, 0.08), transparent 70%);
+    pointer-events: none;
 }
 
 .modal-title {
-    font-size: 64px;
-    margin-bottom: 20px;
-    filter: grayscale(0.3);
+    font-size: 56px;
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 1;
 }
 
 .modal-text {
-    font-size: 24px;
-    color: #3d3d3d;
-    margin-bottom: 10px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
     font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+    position: relative;
+    z-index: 1;
 }
 
 .modal-detail {
-    color: #5d5d5d;
-    margin: 20px 0;
+    color: var(--text-secondary);
+    margin: 16px 0 24px;
     white-space: pre-line;
-    font-size: 16px;
+    font-size: 14px;
+    line-height: 1.7;
+    position: relative;
+    z-index: 1;
 }
 
+/* ---------- Waiting / spinner ---------- */
 .waiting-text {
     text-align: center;
-    color: #5d5d5d;
-    padding: 20px;
-    font-size: 16px;
+    color: var(--text-secondary);
+    padding: 24px;
+    font-size: 14px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    letter-spacing: 0.06em;
 }
 
 .spinner {
     display: inline-block;
     width: 20px;
     height: 20px;
-    border: 3px solid rgba(139, 115, 85, 0.3);
-    border-top: 3px solid #3d3d3d;
+    border: 2px solid rgba(61, 255, 208, 0.15);
+    border-top: 2px solid var(--cyan);
     border-radius: 50%;
-    animation: spin 1s linear infinite;
+    animation: spin 0.8s linear infinite;
 }
 
 @keyframes spin {
@@ -528,12 +655,19 @@ h1 {
     100% { transform: rotate(360deg); }
 }
 
+/* ---------- Turn info banner ---------- */
 #turnInfo,
 #leagueTurnInfo {
-    border: 2px dashed #8b7355 !important;
-    background: rgba(255, 255, 255, 0.5) !important;
-    color: #3d3d3d !important;
-    font-size: 16px !important;
+    background: var(--bg-mid) !important;
+    border: 1px solid var(--cyan-border) !important;
+    border-radius: var(--radius) !important;
+    color: var(--cyan) !important;
+    font-family: 'JetBrains Mono', ui-monospace, monospace !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 12px !important;
 }
 
 /* ---------- League: level cards ---------- */
@@ -541,44 +675,52 @@ h1 {
     display: flex;
     align-items: center;
     gap: 14px;
-    padding: 14px 16px;
-    margin-bottom: 12px;
-    border: 2px solid #8b7355;
-    background: rgba(255, 255, 255, 0.4);
+    padding: 16px 18px;
+    margin-bottom: 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-mid);
     cursor: pointer;
-    transition: all 0.2s;
-    position: relative;
+    transition: border-color 0.2s, background 0.2s, transform 0.2s;
 }
 
 .level-card:hover {
-    background: rgba(139, 115, 85, 0.15);
-    transform: translate(-2px, -2px);
+    border-color: var(--cyan-border);
+    background: var(--bg-card-hover);
+    transform: translateY(-2px);
 }
 
 .level-card:active {
-    transform: translate(0, 0);
+    transform: translateY(0);
 }
 
 .level-card.locked {
-    opacity: 0.55;
+    opacity: 0.5;
     cursor: not-allowed;
-    border-style: dashed;
 }
 
 .level-card.locked:hover {
-    background: rgba(255, 255, 255, 0.4);
+    border-color: var(--border);
+    background: var(--bg-mid);
     transform: none;
 }
 
 .level-card-icon {
-    font-size: 28px;
-    width: 48px;
-    height: 48px;
+    font-size: 24px;
+    width: 44px;
+    height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 2px dashed #8b7355;
+    border: 1px solid var(--cyan-border);
+    background: var(--cyan-dim);
+    border-radius: var(--radius-sm);
     flex-shrink: 0;
+}
+
+.level-card.locked .level-card-icon {
+    border-color: var(--border);
+    background: rgba(255, 255, 255, 0.02);
 }
 
 .level-card-body {
@@ -594,77 +736,248 @@ h1 {
 }
 
 .level-card-name {
+    font-family: 'Syne', sans-serif;
     font-weight: 700;
-    color: #3d3d3d;
-    font-size: 17px;
+    color: var(--text-primary);
+    font-size: 15px;
 }
 
 .level-card-tier {
-    font-size: 12px;
-    color: #5d5d5d;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 10px;
+    color: var(--gold);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
 }
 
 .level-card-status {
-    font-size: 12px;
-    color: #5d5d5d;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11px;
+    color: var(--text-secondary);
+    letter-spacing: 0.04em;
 }
 
 .level-card-arrow {
-    font-size: 18px;
-    color: #3d3d3d;
+    font-size: 14px;
+    color: var(--cyan);
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
 }
 
 .level-card.locked .level-card-arrow {
-    color: rgba(139, 115, 85, 0.6);
+    color: var(--text-muted);
 }
 
-/* ---------- League: per-row CPU/user history styling ---------- */
 .history-actor {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
     font-size: 10px;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    color: #5d5d5d;
-    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
-    /* Fixed width keeps digit columns aligned across rows. Long CPU names
-       (e.g. CPU-Beginner) are truncated rather than pushing digits over. */
+    letter-spacing: 0.08em;
+    color: var(--text-secondary);
+    /* Fixed width keeps digit columns aligned across rows. */
     width: 92px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    margin-right: 0;
 }
 
-.history-item-cpu {
-    border-left-color: #8b7355;
-    background: rgba(139, 115, 85, 0.08);
+.history-item-cpu .history-actor {
+    color: var(--gold);
 }
 
+/* ---------- How-to-Play screen ---------- */
+#howToPlay {
+    display: none;
+    position: relative;
+    z-index: 1;
+}
+
+.help-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 24px;
+    color: var(--text-primary);
+}
+
+.help-section {
+    background: var(--bg-mid);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    margin-bottom: 14px;
+}
+
+.help-section-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.help-section-icon {
+    font-size: 22px;
+}
+
+.help-section-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--text-primary);
+}
+
+.help-text {
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text-secondary);
+}
+
+.help-feedback-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+}
+
+.help-badge {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0;
+}
+
+.help-badge-s {
+    background: rgba(76, 175, 80, 0.15);
+    color: var(--green);
+    border: 1px solid rgba(76, 175, 80, 0.35);
+}
+
+.help-badge-b {
+    background: var(--cyan-dim);
+    color: var(--cyan);
+    border: 1px solid var(--cyan-border);
+}
+
+.help-badge-out {
+    background: rgba(125, 147, 191, 0.12);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-strong);
+    font-size: 10px;
+}
+
+.help-rule-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 6px 0;
+}
+
+.help-rule-num {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--cyan-dim);
+    border: 1px solid var(--cyan-border);
+    color: var(--cyan);
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.help-example-title {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--cyan);
+    margin-bottom: 12px;
+    letter-spacing: 0.04em;
+}
+
+.help-example-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 0;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.help-example-row .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.help-example-row .dot-out { background: var(--text-muted); }
+.help-example-row .dot-ball { background: var(--cyan); opacity: 0.7; }
+.help-example-row .dot-close { background: var(--gold); }
+.help-example-row .dot-win { background: var(--green); }
+
+/* ---------- Entrance animation ---------- */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.container > h1,
+.container > .subtitle,
+.container > #languageSelector,
+.container > #modeSelector,
+.container > .room-section,
+.container > .game-area,
+.container > #howToPlay {
+    animation: fadeInUp 0.5s ease backwards;
+}
+
+.container > .subtitle { animation-delay: 0.08s; }
+.container > #languageSelector,
+.container > #modeSelector,
+.container > .room-section,
+.container > .game-area,
+.container > #howToPlay { animation-delay: 0.16s; }
+
+/* ---------- Mobile ---------- */
 @media (max-width: 480px) {
+    body {
+        padding: 16px 12px;
+    }
+
     .container {
-        padding: 30px 20px;
+        padding: 28px 20px;
     }
 
-    .container::before {
-        left: 20px;
-    }
-
-    .language-selector,
-    .mode-selector,
-    .room-section,
-    .game-area {
-        margin-left: 10px;
+    h1 {
+        font-size: 30px;
     }
 
     .room-code {
-        font-size: 28px;
-        letter-spacing: 5px;
+        font-size: 30px;
+        letter-spacing: 8px;
     }
 
     .players-status {
         grid-template-columns: 1fr;
     }
 
-    h1 {
-        font-size: 28px;
+    .input-group input {
+        font-size: 24px;
+        letter-spacing: 10px;
+    }
+
+    .input-group input::placeholder {
+        letter-spacing: 10px;
     }
 }

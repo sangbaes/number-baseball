@@ -50,6 +50,18 @@ function hideAllSections() {
     document.getElementById('soloGame').style.display = 'none';
     document.getElementById('leagueHome').style.display = 'none';
     document.getElementById('leagueGame').style.display = 'none';
+    document.getElementById('howToPlay').style.display = 'none';
+}
+
+function showHowToPlay() {
+    hideAllSections();
+    document.getElementById('howToPlay').style.display = 'block';
+    GameAnalytics.howToPlayOpened();
+}
+
+function closeHowToPlay() {
+    hideAllSections();
+    document.getElementById('modeSelector').style.display = 'block';
 }
 
 // Deep-link: ?room=ABC123 jumps straight to join.
