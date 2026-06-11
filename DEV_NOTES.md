@@ -1,5 +1,36 @@
 # DEV_NOTES
 
+## 2026-06-11 — 웹 버전 Firebase Analytics 통합
+
+### 문제
+- iOS 앱은 GA4 대시보드(`p518960667`, measurementId `G-K7Y19FJ5N7`)에 사용자/이벤트가 정상 집계됐는데, 웹은 같은 대시보드에 안 잡혔다.
+- 원인: 웹은 독립 gtag.js로 **별개 GA4 속성(`G-4YCRZYFNX4`)** 으로 데이터를 보내고 있었음. `firebase-config.js`에 `measurementId: "G-K7Y19FJ5N7"`가 있었지만 `firebase-analytics-compat.js`를 로드하지 않아 죽은 값이었음.
+
+### 완료한 작업 — iOS와 동일한 GA4 속성으로 통합 (commit `5103e1d`)
+- `web/src/js/analytics.js` 신규 — iOS `AnalyticsService.swift`의 1:1 미러
+  - 12개 헬퍼: `screenView`, `languageChanged`, `gameModeSelected`, `roomCreated`, `roomJoined`, `roomLeft`, `guessSubmitted`, `gameWon`, `gameLost`, `gameDraw`, `soloGameStarted`, `soloGameWon`, `soloGameLost`
+  - 이벤트명·파라미터 키 모두 iOS와 동일 → GA4에서 플랫폼 통합 리포트 가능
+- `index.html`: 독립 gtag 스니펫 제거 → `firebase-analytics-compat.js` 추가, 캐시 버스터 v4.3 → v4.4
+- `firebase-config.js`: `firebase.analytics()` 호출 → `measurementId`(`G-K7Y19FJ5N7`) 실제 활성화
+- 후킹 지점 (iOS와 동일):
+  - `i18n.js`: `setLanguage` → `language_changed` + `screen_view(main_menu)`
+  - `app.js`: `backToMode` → `screen_view(main_menu)`
+  - `solo.js`: `startSoloMode` → `screen_view(solo_game)` + `solo_game_started`, `makeGuessSolo` → `guess_submitted` + `solo_game_won/lost`
+  - `multiplayer.js`: `createRoom` → `game_mode_selected` + `room_created`, `joinRoom` → `room_joined(code)`, `showMultiplayerGame` → `screen_view(multiplayer_game)`, `makeGuessMulti` → `guess_submitted`, `showMultiResult` → `game_won/lost`, `leaveRoom` → `room_left`
+  - `league.js`: `showLeagueHome` → `screen_view(league_home)`, `startLeagueMatch` → `screen_view(league_game)` + `room_joined("league_level_N")` (iOS ProgressionManager와 동일 패턴), `makeLeagueGuess` → `guess_submitted`, `endLeagueMatch` → `game_won/lost(mode=league)`
+- `main.css` (이번 커밋에 동봉된 폴리시): 입력/`.last-guess` 모노스페이스 폰트 + letter-spacing 조정으로 자릿수 정렬, 리그 히스토리 행에 grid 레이아웃 적용
+
+### 배포·검증
+- `./web/deploy.sh --deploy` (Firebase CLI 토큰 만료로 `firebase login --reauth` 선행)
+- 라이브 사이트 v4.4 + `firebase-analytics-compat.js` 로드 확인
+- GA4 실시간 리포트에서 웹 사용자 잡힘 (사용자 직접 확인)
+
+### 다음에 할 일 (변경 없음)
+- Phase 3 (진행 관리 키 TTL + Firebase 익명 로그인)
+- Phase 4 (리더보드 — 솔로 먼저, RTDB 데이터 그대로 활용)
+
+---
+
 ## 2026-06-09 — Phase 2: 5단계 리그 CPU 대전 (이어서)
 
 ### 완료한 작업 — CPU 리그 컨버트
